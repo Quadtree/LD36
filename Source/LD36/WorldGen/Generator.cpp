@@ -39,6 +39,40 @@ void AGenerator::BeginPlay()
 	int32 totalTilesPlaced = 0;
 	int32 totalTilesNeeded = gridSizeX*gridSizeY;
 	int32 nextRoomId = 1;
+	int32 maxItr = 0;
+
+	while (totalTilesPlaced < totalTilesNeeded / 10)
+	{
+		int32 centerX = FMath::RandRange(0, gridSizeX - 1);
+		int32 centerY = FMath::RandRange(0, gridSizeX - 1);
+
+		if (FMath::RandBool())
+		{
+			TryPlaceRoom(centerX - FMath::RandRange(5, 20), centerY - FMath::RandRange(0, 1), centerX + FMath::RandRange(5, 20), centerY + FMath::RandRange(0, 1), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds);
+		}
+		else
+		{
+			TryPlaceRoom(centerX - FMath::RandRange(0, 1), centerY - FMath::RandRange(5, 20), centerX + FMath::RandRange(0, 1), centerY + FMath::RandRange(5, 20), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds);
+		}
+
+		if (++maxItr > 100000) {
+			UE_LOG(LogTemp, Warning, TEXT("Too many iterations! Abort!"));
+			break;
+		}
+	}
+
+	while (totalTilesPlaced < totalTilesNeeded)
+	{
+		int32 centerX = FMath::RandRange(0, gridSizeX - 1);
+		int32 centerY = FMath::RandRange(0, gridSizeX - 1);
+
+		TryPlaceRoom(centerX - FMath::RandRange(0, 7), centerY - FMath::RandRange(0, 7), centerX + FMath::RandRange(0, 7), centerY + FMath::RandRange(0, 7), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds);
+
+		if (++maxItr > 100000) {
+			UE_LOG(LogTemp, Warning, TEXT("Too many iterations! Abort!"));
+			break;
+		}
+	}
 }
 
 // Called every frame
@@ -48,7 +82,40 @@ void AGenerator::Tick( float DeltaTime )
 
 }
 
-void AGenerator::TryPlaceRoom(int32 x1, int32 x2, int32 y1, int32 y2, int32 & nextRoomId, int32 & totalTilesPlaced)
+void AGenerator::TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nextRoomId, int32& totalTilesPlaced, const int32& gridSizeX, const int32& gridSizeY, TArray<TArray<int32>>& roomIds)
 {
+	x1 = FMath::Min(x1, x2);
+	y1 = FMath::Min(y1, y2);
+	x2 = FMath::Max(x1, x2);
+	y2 = FMath::Max(y1, y2);
+
+	x1 = FMath::Clamp(x1, 0, gridSizeX - 1);
+	x2 = FMath::Clamp(x2, 0, gridSizeX - 1);
+	y1 = FMath::Clamp(y1, 0, gridSizeY - 1);
+	y2 = FMath::Clamp(y2, 0, gridSizeY - 1);
+
+	int32 tilesOpen = 0;
+
+	for (int32 x = x1; x < x2; ++x) {
+		for (int32 y = y1; y < y2; ++y) {
+			if (roomIds[x][y] == -1) tilesOpen++;
+		}
+	}
+
+	if (tilesOpen >= (x2 - x1 + 1)*(y2 - y1 + 1)/2)
+	{
+		for (int32 x = x1; x <= x2; ++x) {
+			for (int32 y = y1; y <= y2; ++y) {
+				if (roomIds[x][y] == -1) {
+					roomIds[x][y] = nextRoomId;
+					totalTilesPlaced++;
+				}
+			}
+		}
+
+		UE_LOG(LogTemp, Display, TEXT("New room placed %s, %s"), *FString::FromInt(nextRoomId), *FString::FromInt(totalTilesPlaced));
+
+		nextRoomId++;
+	}
 }
 
