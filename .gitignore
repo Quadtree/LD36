@@ -1,0 +1,13 @@
+Binaries/*
+DerivedDataCache/*
+Intermediate/*
+Saved/*
+*.suo
+*.sdf
+*.opensdf
+Saved/*
+*.fbx
+*.log
+*.sln
+*.VC.opendb
+.~*
