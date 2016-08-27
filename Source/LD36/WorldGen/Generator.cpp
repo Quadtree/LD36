@@ -5,11 +5,12 @@
 
 
 // Sets default values
-AGenerator::AGenerator()
+AGenerator::AGenerator(const FObjectInitializer& oi)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	FloorTiles = oi.CreateDefaultSubobject<UInstancedStaticMeshComponent>(this, "FloorTiles");
 }
 
 // Called when the game starts or when spawned

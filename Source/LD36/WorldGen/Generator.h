@@ -8,12 +8,9 @@
 UCLASS()
 class LD36_API AGenerator : public AActor
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	AGenerator();
-
+public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
@@ -24,7 +21,7 @@ public:
 	float TileSize;
 	
 	UPROPERTY(EditAnywhere, Category = WorldGen)
-	TSubclassOf<AActor> FloorTileType;
+	class UInstancedStaticMeshComponent* FloorTiles;
 
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	TSubclassOf<AActor> WallType;
