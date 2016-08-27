@@ -12,6 +12,7 @@ ARobot::ARobot()
 
 	ManualMovementMode = false;
 	OnFeet = true;
+	StunTime = 0;
 }
 
 // Called when the game starts or when spawned
@@ -19,6 +20,7 @@ void ARobot::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	DefaultMeshRelativeTransform = GetMesh()->GetRelativeTransform();
 }
 
 // Called every frame
@@ -45,6 +47,28 @@ void ARobot::Tick( float DeltaTime )
 
 		AddMovementInput(GetActorRotation().RotateVector(FVector::ForwardVector), ManualMovement.Size());
 	}
+
+	if (OnFeet != StunTime <= 0)
+	{
+		if (StunTime > 0)
+		{
+			GetMesh()->SetSimulatePhysics(true);
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetMovementComponent()->SetActive(false);
+		}
+		else
+		{
+			GetMesh()->SetSimulatePhysics(false);
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			GetMovementComponent()->SetActive(true);
+			GetMesh()->AttachTo(GetCapsuleComponent());
+			GetMesh()->SetRelativeTransform(DefaultMeshRelativeTransform);
+		}
+
+		OnFeet = StunTime <= 0;
+	}
+
+	StunTime -= DeltaTime;
 }
 
 // Called to bind functionality to input

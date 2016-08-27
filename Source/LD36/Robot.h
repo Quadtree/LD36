@@ -24,6 +24,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
 	bool OnFeet;
+
+	UPROPERTY(BlueprintReadWrite, Category = Stun)
+	float StunTime;
 	
 private:
 	bool ManualMovementMode;
@@ -32,4 +35,6 @@ private:
 	void SetMovementUpDown(float value);
 
 	FVector2D ManualMovement;
+
+	FTransform DefaultMeshRelativeTransform;
 };
