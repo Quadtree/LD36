@@ -76,6 +76,12 @@ void AGenerator::BeginPlay()
 			DrawDebugString(GetWorld(), GetActorLocation() + FVector(TileSize * (x - GridSize / 2), TileSize * (y - GridSize / 2), 400), *FString::FromInt(roomIds[x][y]));
 		}
 	}
+
+	for (int32 x = 0; x < gridSizeX; ++x) {
+		for (int32 y = 0; y < gridSizeY; ++y) {
+			FloorTiles->AddInstance(FTransform(FRotator(0, 0, 0), GetActorLocation() + FVector(TileSize * (x - GridSize / 2), TileSize * (y - GridSize / 2), 0), FVector(1, 1, 1)));
+		}
+	}
 }
 
 // Called every frame
