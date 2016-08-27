@@ -89,12 +89,12 @@ void AGenerator::BeginPlay()
 
 			TArray<AActor*> nws;
 
-			if ((y >= 0 && x >= 0 && x < gridSizeX - 1 && roomIds[x][y] != roomIds[x + 1][y]) || x == -1 || x == gridSizeX - 1)
+			if ((y >= 0 && x >= 0 && x < gridSizeX - 1 && roomIds[x][y] != roomIds[x + 1][y]) || (x == -1 && y != -1) || (x == gridSizeX - 1 && y != -1))
 			{
 				nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(TileSize / 2, 0, 0), FRotator(0, 0, 0), params));
 			}
 
-			if ((y >= 0 && x >= 0 && y < gridSizeY - 1 && roomIds[x][y] != roomIds[x][y + 1]) || y == -1 || y == gridSizeY - 1)
+			if ((y >= 0 && x >= 0 && y < gridSizeY - 1 && roomIds[x][y] != roomIds[x][y + 1]) || (y == -1 && x != -1) || (y == gridSizeY - 1 && x != -1))
 			{
 				nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(0, TileSize / 2, 0), FRotator(0, 90, 0), params));
 			}
