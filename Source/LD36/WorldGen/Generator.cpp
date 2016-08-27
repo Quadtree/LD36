@@ -22,8 +22,8 @@ void AGenerator::BeginPlay()
 
 	UE_LOG(LogTemp, Display, TEXT("generator bounds=%s"), *boxExtent.ToString());
 
-	const int32 gridSizeX = boxExtent.X / TileSize;
-	const int32 gridSizeY = boxExtent.Y / TileSize;
+	const int32 gridSizeX = boxExtent.X / TileSize*2;
+	const int32 gridSizeY = boxExtent.Y / TileSize*2;
 
 	UE_LOG(LogTemp, Display, TEXT("gridSizeX=%s gridSizeY=%s"), *FString::FromInt(gridSizeX), *FString::FromInt(gridSizeY));
 
@@ -71,6 +71,12 @@ void AGenerator::BeginPlay()
 		if (++maxItr > 100000) {
 			UE_LOG(LogTemp, Warning, TEXT("Too many iterations! Abort!"));
 			break;
+		}
+	}
+
+	for (int32 x = 0; x < gridSizeX; ++x) {
+		for (int32 y = 0; y < gridSizeY; ++y) {
+			DrawDebugString(GetWorld(), origin - boxExtent + FVector(TileSize * x, TileSize * y, 400), *FString::FromInt(roomIds[x][y]));
 		}
 	}
 }
