@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Engine/Actor.h"
 #include "BaseWall.generated.h"
 
 /**
@@ -12,7 +11,9 @@ UCLASS()
 class LD36_API ABaseWall : public AActor
 {
 	GENERATED_BODY()
-	
+public:
+	ABaseWall();
+
 	virtual void Tick(float DeltaSeconds) override;
 	
 	

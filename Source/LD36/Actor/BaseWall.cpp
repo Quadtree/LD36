@@ -8,4 +8,6 @@ ABaseWall::ABaseWall()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-
+void ABaseWall::Tick(float DeltaSeconds)
+{
+}
