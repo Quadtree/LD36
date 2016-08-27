@@ -86,16 +86,12 @@ void ARobot::Tick( float DeltaTime )
 		OnGroundLoc = GetMesh()->GetBoneLocation("Bone");
 	}
 
-	if (!OnFeet && FallBlend == 1)
+	if (!OnFeet)
 	{
-		FVector pelvisLoc = GetMesh()->GetBoneLocation("Bone");
-		FVector meshLoc = GetMesh()->GetComponentLocation();
-
-		DrawDebugSphere(GetWorld(), pelvisLoc, 50, 5, FColor::Red);
+		DrawDebugSphere(GetWorld(), OnGroundLoc, 50, 5, FColor::Red);
 		DrawDebugSphere(GetWorld(), GetCapsuleComponent()->GetComponentLocation(), 50, 5, FColor::Green);
 
-		GetCapsuleComponent()->SetWorldLocation(FVector(pelvisLoc.X, pelvisLoc.Y, GetCapsuleComponent()->GetComponentLocation().Z));
-		GetMesh()->SetWorldLocation(meshLoc);
+		GetCapsuleComponent()->SetWorldLocation(FVector(OnGroundLoc.X, OnGroundLoc.Y, GetCapsuleComponent()->GetComponentLocation().Z));
 	}
 
 	StunTime -= DeltaTime;
