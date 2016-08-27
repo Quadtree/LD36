@@ -19,6 +19,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	float TileSize;
+
+	UPROPERTY(EditAnywhere, Category = WorldGen)
+	int32 GridSize;
 	
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	class UInstancedStaticMeshComponent* FloorTiles;

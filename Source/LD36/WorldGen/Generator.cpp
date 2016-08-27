@@ -11,20 +11,16 @@ AGenerator::AGenerator(const FObjectInitializer& oi)
 	PrimaryActorTick.bCanEverTick = true;
 
 	FloorTiles = oi.CreateDefaultSubobject<UInstancedStaticMeshComponent>(this, "FloorTiles");
+	RootComponent = FloorTiles;
 }
 
 // Called when the game starts or when spawned
 void AGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	FVector origin, boxExtent;
-	this->GetActorBounds(false, origin, boxExtent);
 
-	UE_LOG(LogTemp, Display, TEXT("generator bounds=%s"), *boxExtent.ToString());
-
-	const int32 gridSizeX = boxExtent.X / TileSize*2;
-	const int32 gridSizeY = boxExtent.Y / TileSize*2;
+	const int32 gridSizeX = GridSize;
+	const int32 gridSizeY = GridSize;
 
 	UE_LOG(LogTemp, Display, TEXT("gridSizeX=%s gridSizeY=%s"), *FString::FromInt(gridSizeX), *FString::FromInt(gridSizeY));
 
@@ -77,7 +73,7 @@ void AGenerator::BeginPlay()
 
 	for (int32 x = 0; x < gridSizeX; ++x) {
 		for (int32 y = 0; y < gridSizeY; ++y) {
-			DrawDebugString(GetWorld(), origin - boxExtent + FVector(TileSize * x, TileSize * y, 400), *FString::FromInt(roomIds[x][y]));
+			DrawDebugString(GetWorld(), GetActorLocation() + FVector(TileSize * (x - GridSize / 2), TileSize * (y - GridSize / 2), 400), *FString::FromInt(roomIds[x][y]));
 		}
 	}
 }
