@@ -29,8 +29,15 @@ void ARobot::Tick( float DeltaTime )
 	if (OnFeet && ManualMovementMode)
 	{
 		float facing = FMath::Atan2(ManualMovement.Y, ManualMovement.X);
+		//UE_LOG(LogTemp, Display, TEXT("facing=%s"), *FString::SanitizeFloat(facing));
 
-		SetActorRotation(FRotator(0, FMath::RadiansToDegrees(facing), 0));
+		/*if (auto cam = FindComponentByClass<UCameraComponent>())
+		{
+			UE_LOG(LogTemp, Display, TEXT("facing=%s"), *FString::SanitizeFloat(cam->GetComponentRotation().Yaw));
+			facing += cam->GetComponentRotation().Yaw;
+		}*/
+
+		SetActorRotation(FRotator(0, FMath::RadiansToDegrees(facing)-45, 0));
 	}
 }
 
@@ -40,12 +47,12 @@ void ARobot::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	Super::SetupPlayerInputComponent(InputComponent);
 
 	InputComponent->BindAxis("MovementLeftRight", this, &ARobot::SetMovementLeftRight);
-	InputComponent->BindAxis("MovementUpDown", this, &ARobot::SetMovementLeftRight);
+	InputComponent->BindAxis("MovementUpDown", this, &ARobot::SetMovementUpDown);
 }
 
 void ARobot::SetMovementLeftRight(float value)
 {
-	ManualMovement.X = value;
+	ManualMovement.X = -value;
 	ManualMovementMode = true;
 }
 
