@@ -42,6 +42,8 @@ void ARobot::Tick( float DeltaTime )
 		//UE_LOG(LogTemp, Display, TEXT("oldRot=%s newRot=%s"), *GetActorRotation().ToString(), *newRot.ToString());
 
 		SetActorRotation(newRot);
+
+		AddMovementInput(GetActorRotation().RotateVector(FVector::ForwardVector), ManualMovement.Size());
 	}
 }
 
