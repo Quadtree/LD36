@@ -3,7 +3,6 @@
 #include "LD36.h"
 #include "Generator.h"
 
-
 // Sets default values
 AGenerator::AGenerator(const FObjectInitializer& oi)
 {
@@ -26,10 +25,24 @@ void AGenerator::BeginPlay()
 
 	TArray<TArray<int32>> roomIds;
 
+	TArray<TArray<bool>> xDoor;
+	TArray<TArray<bool>> yDoor;
+
+	TArray<TArray<bool>> open;
+	TArray<TArray<bool>> closed;
+
 	for (int32 x = 0; x < gridSizeX; ++x) {
 		roomIds.Add(TArray<int32>());
+		xDoor.Add(TArray<bool>());
+		yDoor.Add(TArray<bool>());
+		open.Add(TArray<bool>());
+		closed.Add(TArray<bool>());
 		for (int32 y = 0; y < gridSizeY; ++y) {
 			roomIds[x].Add(-1);
+			xDoor[x].Add(false);
+			yDoor[x].Add(false);
+			open[x].Add(false);
+			closed[x].Add(false);
 		}
 	}
 
@@ -71,6 +84,108 @@ void AGenerator::BeginPlay()
 		}
 	}
 
+	// door phase
+	open[0][0] = true;
+
+	TArray<FIntVector> deltas;
+	deltas.Add(FIntVector(1, 0, 0));
+	deltas.Add(FIntVector(0, 1, 0));
+	deltas.Add(FIntVector(-1, 0, 0));
+	deltas.Add(FIntVector(0, -1, 0));
+
+	maxItr = 0;
+	while (1)
+	{
+		bool anyOpen = true;
+		while (anyOpen) {
+			anyOpen = false;
+			for (int32 x = 0; x < GridSize; ++x) {
+				for (int32 y = 0; y < GridSize; ++y) {
+					if (open[x][y]) {
+						for (int32 di = 0; di < deltas.Num(); ++di) {
+							auto& delta = deltas[di];
+
+							int32 nx = x + delta.X;
+							int32 ny = y + delta.Y;
+
+							if (nx < 0 || ny < 0 || nx >= GridSize || ny >= GridSize) continue;
+
+							if (roomIds[x][y] == roomIds[nx][ny] ||
+								(di == 0 && xDoor[x][y]) ||
+								(di == 1 && yDoor[x][y]) ||
+								(di == 2 && x > 0 && xDoor[x - 1][y]) ||
+								(di == 3 && y > 0 && yDoor[x][y - 1]))
+							{
+								if (!closed[nx][ny]) open[nx][ny] = true;
+							}
+						}
+
+						closed[x][y] = true;
+						open[x][y] = false;
+						anyOpen = true;
+
+						//UE_LOG(LogTemp, Display, TEXT("Closed %s,%s"), *FString::FromInt(x), *FString::FromInt(y));
+					}
+				}
+			}
+		}
+
+		// now we've filled in all open squares
+		bool done = true;
+		for (int32 x = 0; x < GridSize; ++x) {
+			for (int32 y = 0; y < GridSize; ++y) {
+				if (!closed[x][y]) done = false;
+			}
+		}
+
+		if (done) break;
+
+		int32 ndx = -1, ndy = -1, n = 0;
+		bool isXDoor = false;
+
+		for (int32 x = 0; x < GridSize - 1; ++x) {
+			for (int32 y = 0; y < GridSize - 1; ++y) {
+				if (closed[x][y] != closed[x + 1][y] && FMath::RandRange(0, n++) == 0)
+				{
+					ndx = x;
+					ndy = y;
+					isXDoor = true;
+				}
+				if (closed[x][y] != closed[x][y + 1] && FMath::RandRange(0, n++) == 0)
+				{
+					ndx = x;
+					ndy = y;
+					isXDoor = false;
+				}
+			}
+		}
+
+		if (ndx > -1)
+		{
+			if (isXDoor)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Adding X Door at %s,%s"), *FString::FromInt(ndx), *FString::FromInt(ndy));
+				xDoor[ndx][ndy] = true;
+				open[ndx + 1][ndy] = true;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Display, TEXT("Adding Y Door at %s,%s"), *FString::FromInt(ndx), *FString::FromInt(ndy));
+				yDoor[ndx][ndy] = true;
+				open[ndx][ndy + 1] = true;
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Unexpected lack of door creation?!"));
+		}
+
+		if (++maxItr > 1000) {
+			UE_LOG(LogTemp, Warning, TEXT("Too many iterations in door creation! Abort!"));
+			break;
+		}
+	}
+
 	for (int32 x = 0; x < gridSizeX; ++x) {
 		for (int32 y = 0; y < gridSizeY; ++y) {
 			DrawDebugString(GetWorld(), GetActorLocation() + FVector(TileSize * (x - GridSize / 2), TileSize * (y - GridSize / 2), 400), *FString::FromInt(roomIds[x][y]));
@@ -91,12 +206,26 @@ void AGenerator::BeginPlay()
 
 			if ((y >= 0 && x >= 0 && x < gridSizeX - 1 && roomIds[x][y] != roomIds[x + 1][y]) || (x == -1 && y != -1) || (x == gridSizeX - 1 && y != -1))
 			{
-				nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(TileSize / 2, 0, 0), FRotator(0, 0, 0), params));
+				if (x == -1 || y == -1 || !xDoor[x][y])
+				{
+					nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(TileSize / 2, 0, 0), FRotator(0, 0, 0), params));
+				}
+				else
+				{
+					// ...
+				}
 			}
 
 			if ((y >= 0 && x >= 0 && y < gridSizeY - 1 && roomIds[x][y] != roomIds[x][y + 1]) || (y == -1 && x != -1) || (y == gridSizeY - 1 && x != -1))
 			{
-				nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(0, TileSize / 2, 0), FRotator(0, 90, 0), params));
+				if (x == -1 || y == -1 || !yDoor[x][y])
+				{
+					nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(0, TileSize / 2, 0), FRotator(0, 90, 0), params));
+				}
+				else
+				{
+					// ...
+				}
 			}
 
 			for (auto a : nws) {
