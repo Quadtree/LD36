@@ -49,35 +49,33 @@ void ARobot::Tick( float DeltaTime )
 		AddMovementInput(GetActorRotation().RotateVector(FVector::ForwardVector), ManualMovement.Size());
 	}
 
-	if (OnFeet != StunTime <= 0)
+	if (StunTime > 0 && OnFeet)
+	{
+		GetMesh()->SetSimulatePhysics(true);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMovementComponent()->SetActive(false);
+		GetMesh()->SetPhysicsBlendWeight(1);
+		GetMesh()->SetEnablePhysicsBlending(true);
+		FallBlend = 1;
+		OnFeet = false;
+	}
+	
+	if (!OnFeet)
 	{
 		if (StunTime > 0)
 		{
-			GetMesh()->SetSimulatePhysics(true);
-			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			GetMovementComponent()->SetActive(false);
-			GetMesh()->SetPhysicsBlendWeight(1);
-			GetMesh()->SetEnablePhysicsBlending(true);
-			FallBlend = 1;
-			OnFeet = false;
+			//FallBlend -= DeltaTime * 0.6f;
+			GetMesh()->SetPhysicsBlendWeight(FMath::Clamp((StunTime*0.6f) + 0.75f, 0.f, 1.f));
 		}
 		else
 		{
-			if (FallBlend > 0)
-			{
-				FallBlend -= DeltaTime;
-				GetMesh()->SetPhysicsBlendWeight(FallBlend);
-			}
-			else
-			{
-				GetMesh()->SetSimulatePhysics(false);
-				GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				GetMovementComponent()->SetActive(true);
-				GetMesh()->SetEnablePhysicsBlending(false);
-				OnFeet = true;
-			}
+			GetMesh()->SetSimulatePhysics(false);
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			GetMovementComponent()->SetActive(true);
+			GetMesh()->SetEnablePhysicsBlending(false);
+			OnFeet = true;
 		}
 	}
 
@@ -88,8 +86,8 @@ void ARobot::Tick( float DeltaTime )
 
 	if (!OnFeet)
 	{
-		DrawDebugSphere(GetWorld(), OnGroundLoc, 50, 5, FColor::Red);
-		DrawDebugSphere(GetWorld(), GetCapsuleComponent()->GetComponentLocation(), 50, 5, FColor::Green);
+		//DrawDebugSphere(GetWorld(), OnGroundLoc, 50, 5, FColor::Red);
+		//DrawDebugSphere(GetWorld(), GetCapsuleComponent()->GetComponentLocation(), 50, 5, FColor::Green);
 
 		GetCapsuleComponent()->SetWorldLocation(FVector(OnGroundLoc.X, OnGroundLoc.Y, GetCapsuleComponent()->GetComponentLocation().Z));
 	}

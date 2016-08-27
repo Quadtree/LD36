@@ -27,6 +27,18 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = Stun)
 	float StunTime;
+
+	UPROPERTY(BlueprintReadOnly, Category = Attack)
+	bool IsPunching;
+
+	UPROPERTY(BlueprintReadOnly, Category = Attack)
+	bool IsKicking;
+
+	UPROPERTY(EditAnywhere, Category = Attack)
+	FName FistBoneName;
+
+	UPROPERTY(EditAnywhere, Category = Attack)
+	FName FootBoneName;
 	
 private:
 	bool ManualMovementMode;
