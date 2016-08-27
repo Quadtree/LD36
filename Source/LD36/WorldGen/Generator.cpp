@@ -81,20 +81,26 @@ void AGenerator::BeginPlay()
 		for (int32 y = -1; y < gridSizeY; ++y) {
 			FVector tilePos = GetActorLocation() + FVector(TileSize * (x - GridSize / 2), TileSize * (y - GridSize / 2), 0);
 			if (x >= 0 && y >= 0) {
-				FloorTiles->AddInstance(FTransform(FRotator(0, 0, 0), tilePos, FVector(1, 1, 1)));
+				FloorTiles->AddInstance(FTransform(FRotator(0, 0, 0), tilePos, FVector(1, 1, 1) * (TileSize / 100)));
 			}
 
 			FActorSpawnParameters params;
 			params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+			TArray<AActor*> nws;
+
 			if ((y >= 0 && x >= 0 && x < gridSizeX - 1 && roomIds[x][y] != roomIds[x + 1][y]) || x == -1 || x == gridSizeX - 1)
 			{
-				GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(TileSize / 2, 0, 0), FRotator(0, 0, 0), params);
+				nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(TileSize / 2, 0, 0), FRotator(0, 0, 0), params));
 			}
 
 			if ((y >= 0 && x >= 0 && y < gridSizeY - 1 && roomIds[x][y] != roomIds[x][y + 1]) || y == -1 || y == gridSizeY - 1)
 			{
-				GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(0, TileSize / 2, 0), FRotator(0, 90, 0), params);
+				nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(0, TileSize / 2, 0), FRotator(0, 90, 0), params));
+			}
+
+			for (auto a : nws) {
+				if (a) a->SetActorScale3D(FVector(1, TileSize / 100, 1));
 			}
 		}
 	}
