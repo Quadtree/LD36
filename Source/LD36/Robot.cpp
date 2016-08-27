@@ -68,7 +68,6 @@ void ARobot::Tick( float DeltaTime )
 			{
 				FallBlend -= DeltaTime;
 				GetMesh()->SetPhysicsBlendWeight(FallBlend);
-				UE_LOG(LogTemp, Display, TEXT("fallBlend=%s"), *FString::SanitizeFloat(FallBlend));
 			}
 			else
 			{
@@ -76,8 +75,6 @@ void ARobot::Tick( float DeltaTime )
 				GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 				GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 				GetMovementComponent()->SetActive(true);
-				GetMesh()->AttachTo(GetCapsuleComponent());
-				GetMesh()->SetRelativeTransform(DefaultMeshRelativeTransform);
 				GetMesh()->SetEnablePhysicsBlending(false);
 				OnFeet = true;
 			}
