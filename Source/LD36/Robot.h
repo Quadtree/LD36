@@ -39,4 +39,6 @@ private:
 	FTransform DefaultMeshRelativeTransform;
 
 	float FallBlend;
+
+	FVector OnGroundLoc;
 };
