@@ -26,7 +26,7 @@ void ARobot::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if (OnFeet && ManualMovementMode)
+	if (OnFeet && ManualMovement.Size() > 0.1f)
 	{
 		float facing = FMath::Atan2(ManualMovement.Y, ManualMovement.X);
 		//UE_LOG(LogTemp, Display, TEXT("facing=%s"), *FString::SanitizeFloat(facing));
@@ -37,7 +37,11 @@ void ARobot::Tick( float DeltaTime )
 			facing += cam->GetComponentRotation().Yaw;
 		}*/
 
-		SetActorRotation(FRotator(0, FMath::RadiansToDegrees(facing)-45, 0));
+		FRotator dest = FRotator(0, FMath::RadiansToDegrees(facing) - 45, 0);
+		FRotator newRot = FMath::RInterpConstantTo(GetActorRotation(), dest, DeltaTime, 1500);
+		//UE_LOG(LogTemp, Display, TEXT("oldRot=%s newRot=%s"), *GetActorRotation().ToString(), *newRot.ToString());
+
+		SetActorRotation(newRot);
 	}
 }
 
