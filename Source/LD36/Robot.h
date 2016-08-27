@@ -34,6 +34,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Attack)
 	bool IsKicking;
 
+	bool TryPunch;
+
+	bool TryKick;
+
+	float PunchLockoutTimer;
+	float KickLockoutTimer;
+
 	UPROPERTY(EditAnywhere, Category = Attack)
 	FName FistBoneName;
 
@@ -46,6 +53,9 @@ private:
 	void SetMovementLeftRight(float value);
 	void SetMovementUpDown(float value);
 
+	void SetTryPunch(float value);
+	void SetTryKick(float value);
+
 	FVector2D ManualMovement;
 
 	FTransform DefaultMeshRelativeTransform;
@@ -53,4 +63,6 @@ private:
 	float FallBlend;
 
 	FVector OnGroundLoc;
+
+	void MeleeAttack(const FName& boneName, float& lockoutTimer, float damage, float stunDamage);
 };
