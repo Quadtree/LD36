@@ -10,4 +10,5 @@ Saved/*
 *.log
 *.sln
 *.VC.opendb
+*.VC.db
 .~*
