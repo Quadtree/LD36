@@ -21,6 +21,7 @@ void ARobot::BeginPlay()
 	Super::BeginPlay();
 	
 	DefaultMeshRelativeTransform = GetMesh()->GetRelativeTransform();
+	FallBlend = 0;
 }
 
 // Called every frame
@@ -54,18 +55,33 @@ void ARobot::Tick( float DeltaTime )
 		{
 			GetMesh()->SetSimulatePhysics(true);
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 			GetMovementComponent()->SetActive(false);
+			GetMesh()->SetPhysicsBlendWeight(1);
+			GetMesh()->SetEnablePhysicsBlending(true);
+			FallBlend = 1;
+			OnFeet = false;
 		}
 		else
 		{
-			GetMesh()->SetSimulatePhysics(false);
-			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			GetMovementComponent()->SetActive(true);
-			GetMesh()->AttachTo(GetCapsuleComponent());
-			GetMesh()->SetRelativeTransform(DefaultMeshRelativeTransform);
+			if (FallBlend > 0)
+			{
+				FallBlend -= DeltaTime;
+				GetMesh()->SetPhysicsBlendWeight(FallBlend);
+				UE_LOG(LogTemp, Display, TEXT("fallBlend=%s"), *FString::SanitizeFloat(FallBlend));
+			}
+			else
+			{
+				GetMesh()->SetSimulatePhysics(false);
+				GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				GetMovementComponent()->SetActive(true);
+				GetMesh()->AttachTo(GetCapsuleComponent());
+				GetMesh()->SetRelativeTransform(DefaultMeshRelativeTransform);
+				GetMesh()->SetEnablePhysicsBlending(false);
+				OnFeet = true;
+			}
 		}
-
-		OnFeet = StunTime <= 0;
 	}
 
 	StunTime -= DeltaTime;

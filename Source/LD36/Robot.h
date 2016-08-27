@@ -37,4 +37,6 @@ private:
 	FVector2D ManualMovement;
 
 	FTransform DefaultMeshRelativeTransform;
+
+	float FallBlend;
 };
