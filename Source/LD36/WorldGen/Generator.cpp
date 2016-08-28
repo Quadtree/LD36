@@ -261,7 +261,10 @@ void AGenerator::BeginPlay()
 			{
 				if (x == -1 || y == -1 || !xDoor[x][y])
 				{
-					nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(TileSize / 2, 0, 100), FRotator(0, 0, 0), params));
+					if (x == -1 || x == gridSizeX - 1)
+						nws.Add(GetWorld()->SpawnActor<AActor>(PerimeterWallType, tilePos + FVector(TileSize / 2, 0, 100), FRotator(0, 0, 0), params));
+					else
+						nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(TileSize / 2, 0, 100), FRotator(0, 0, 0), params));
 
 					if (x == -1 && y == pStartRoomY)
 					{
@@ -280,7 +283,10 @@ void AGenerator::BeginPlay()
 			{
 				if (x == -1 || y == -1 || !yDoor[x][y])
 				{
-					nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(0, TileSize / 2, 100), FRotator(0, 90, 0), params));
+					if (y == -1 || y == gridSizeY - 1)
+						nws.Add(GetWorld()->SpawnActor<AActor>(PerimeterWallType, tilePos + FVector(0, TileSize / 2, 100), FRotator(0, 90, 0), params));
+					else
+						nws.Add(GetWorld()->SpawnActor<AActor>(WallType, tilePos + FVector(0, TileSize / 2, 100), FRotator(0, 90, 0), params));
 				}
 				else
 				{
