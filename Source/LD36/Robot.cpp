@@ -45,7 +45,7 @@ void ARobot::Tick( float DeltaTime )
 		FRotator newRot = FMath::RInterpConstantTo(GetActorRotation(), dest, DeltaTime, 1500);
 		//UE_LOG(LogTemp, Display, TEXT("oldRot=%s newRot=%s"), *GetActorRotation().ToString(), *newRot.ToString());
 
-		SetActorRotation(newRot);
+		GetController()->SetControlRotation(newRot);
 
 		AddMovementInput(GetActorRotation().RotateVector(FVector::ForwardVector), ManualMovement.Size());
 	}
@@ -63,8 +63,8 @@ void ARobot::Tick( float DeltaTime )
 		if (TryPunch && PunchLockoutTimer <= 0) IsPunching = true;
 	}
 
-	if (IsKicking) MeleeAttack(FootBoneName, KickLockoutTimer, 20, 40);
-	if (IsPunching) MeleeAttack(FistBoneName, PunchLockoutTimer, 30, 20);
+	if (IsKicking) MeleeAttack(FootBoneName, KickLockoutTimer, 20, 40, 15);
+	if (IsPunching) MeleeAttack(FistBoneName, PunchLockoutTimer, 30, 20, 40);
 
 	KickLockoutTimer -= DeltaTime;
 	PunchLockoutTimer -= DeltaTime;
@@ -97,7 +97,7 @@ float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, A
 
 		UE_LOG(LogTemp, Display, TEXT("distanceToCore=%s"), *FString::SanitizeFloat(distanceToCore));
 
-		if (distanceToCore > 45)
+		if (distanceToCore > 25)
 		{
 			if (DamageEvent.DamageTypeClass == UStunDamage::StaticClass())
 				DamageAmount /= 32;
@@ -108,7 +108,7 @@ float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, A
 
 	if (DamageEvent.DamageTypeClass == UStunDamage::StaticClass())
 	{
-		StunTime += DamageAmount * FMath::FRandRange(1.f / 20.f, 3.f / 20.f);
+		StunTime += FMath::Max(0.f, DamageAmount * FMath::FRandRange(1.f / 60.f, 10.f / 60.f) - (5.f / 60.f));
 	}
 	else
 	{
@@ -142,7 +142,7 @@ void ARobot::SetTryKick(float value)
 	TryKick = value > 0.5f;
 }
 
-void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damage, float stunDamage)
+void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damage, float stunDamage, float minCoreDistance)
 {
 	FVector attackLocation = GetMesh()->GetBoneLocation(boneName);
 

@@ -12,8 +12,12 @@ UCLASS()
 class LD36_API AEnemyAIController : public AAIController
 {
 	GENERATED_BODY()
+public:
+	AEnemyAIController();
+
+	virtual void Tick(float DeltaSeconds) override;
+private:
+	float NextScanCharge;
 	
-	
-	
-	
+	bool Aggroed;
 };

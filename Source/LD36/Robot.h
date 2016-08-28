@@ -72,7 +72,7 @@ private:
 
 	FVector OnGroundLoc;
 
-	void MeleeAttack(const FName& boneName, float& lockoutTimer, float damage, float stunDamage);
+	void MeleeAttack(const FName& boneName, float& lockoutTimer, float damage, float stunDamage, float minCoreDistance);
 
 	void UpdateStandingStatus();
 };
