@@ -71,6 +71,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon)
 	TSubclassOf<AActor> MissileType;
 
+	UPROPERTY(EditAnywhere, Category = Missile)
+	class UParticleSystem* Explosion;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
 	class USoundBase* AttackHitSound;
 

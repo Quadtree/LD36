@@ -363,6 +363,7 @@ void ARobot::UpdateStandingStatus()
 	if (Health <= 0 && Intact)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Explosion, GetActorLocation() + FVector(0,0,50));
 		Intact = false;
 	}
 }
