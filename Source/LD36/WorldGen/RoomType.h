@@ -7,12 +7,11 @@
 /**
  * 
  */
-USTRUCT()
-struct LD36_API FRoomType
+USTRUCT(BlueprintType)
+struct FRoomType
 {
 	GENERATED_BODY()
 	
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Room)
 	float PropDensity;
 

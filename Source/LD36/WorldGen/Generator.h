@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "RoomType.h"
 #include "Generator.generated.h"
 
 UCLASS()
@@ -29,7 +30,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	TSubclassOf<AActor> WallType;
 
-	
+	// room types. assume 0 is corridor, 1 is starting room, 2 is central computer room
+	UPROPERTY(EditAnywhere, Category = WorldGen)
+	TArray<FRoomType> RoomTypes;
 
 private:
 	void TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nextRoomId, int32& totalTilesPlaced, const int32& gridSizeX, const int32& gridSizeY, TArray<TArray<int32>>& roomIds);
