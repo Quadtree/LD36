@@ -53,7 +53,7 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	UPROPERTY(EditAnywhere, Category = Health)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Health)
 	float Health;
 
 	UPROPERTY(EditAnywhere, Category = Health)

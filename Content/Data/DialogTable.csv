@@ -13,3 +13,8 @@ see_mace,"Whoa, a mace! I need to grab that!"
 get_mace,Now this is more like it!
 contact,"Uh oh, they don't look too friendly. I can use comma and period, or the triggers to fight!"
 see_first_oil,"Oil barrels! If I smash those, I'll get some health back."
+win,At last I escaped! Victory!
+killbot0,Sending the TERM signal
+killbot1,Sending the KILL signal
+killbot2,Kill all malfunctioning robots!
+killbot3,You have performed an illegal instruction and must be shut down.

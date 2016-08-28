@@ -58,6 +58,11 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 						pwn->TryFireMissile = true;
 						SetControlRotation(rot);
 						StopMovementTimer = 2;
+
+						if (FMath::RandRange(0, 5) == 0)
+						{
+							pwn->Say(*(FString(TEXT("killbot")) + FString::FromInt(FMath::RandRange(0,3))));
+						}
 					}
 
 					if (auto pcp = Cast<ARobot>(pc))
