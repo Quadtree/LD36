@@ -96,6 +96,8 @@ void AGenerator::BeginPlay()
 
 		TryPlaceRoom(centerX - FMath::RandRange(0, 7), centerY - FMath::RandRange(0, 7), centerX + FMath::RandRange(0, 7), centerY + FMath::RandRange(0, 7), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, roomType);
 
+		if (roomTypeMapping[roomTypeMapping.Num() - 1] == 1) startingRoomPlaced = true;
+
 		if (++maxItr > 100000) {
 			UE_LOG(LogTemp, Warning, TEXT("Too many iterations! Abort!"));
 			break;
@@ -270,6 +272,53 @@ void AGenerator::BeginPlay()
 				if (a) a->SetActorScale3D(FVector(1, TileSize / 100, 1));
 			}
 		}
+	}
+
+	maxItr = 0;
+
+	for (int32 roomId = 1; roomId < roomTypeMapping.Num(); ++roomId)
+	{
+		if (RoomTypes[roomTypeMapping[roomId]].PropTypes.Num() == 0) continue;
+
+		int32 totalTilesInRoom = 0;
+		for (int32 x = 0; x < gridSizeX; ++x) {
+			for (int32 y = 0; y < gridSizeY; ++y) {
+				if (roomIds[x][y] == roomId) totalTilesInRoom++;
+			}
+		}
+
+		int32 neededProps = (int32)(totalTilesInRoom * RoomTypes[roomTypeMapping[roomId]].PropDensity);
+		int32 propsPlaced = 0;
+
+		while (propsPlaced < neededProps)
+		{
+			for (int32 x = 0; x < gridSizeX; ++x) {
+				for (int32 y = 0; y < gridSizeY; ++y) {
+					if (roomIds[x][y] == roomId)
+					{
+						int32 otherAdjRooms = 0;
+
+						if (x == 0 || roomIds[x - 1][y] != roomIds[x][y]) otherAdjRooms++;
+						if (y == 0 || roomIds[x][y - 1] != roomIds[x][y]) otherAdjRooms++;
+						if (x == gridSizeX - 1 || roomIds[x + 1][y] != roomIds[x][y]) otherAdjRooms++;
+						if (y == gridSizeY - 1 || roomIds[x][y + 1] != roomIds[x][y]) otherAdjRooms++;
+
+						if (FMath::RandRange(0, 15) <= otherAdjRooms)
+						{
+							FVector tilePos = GetActorLocation() + FVector(TileSize * (x - GridSize / 2), TileSize * (y - GridSize / 2), 200);
+							FActorSpawnParameters params;
+							params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+							AActor* na = GetWorld()->SpawnActor<AActor>(RoomTypes[roomTypeMapping[roomId]].PropTypes[FMath::RandRange(0, RoomTypes[roomTypeMapping[roomId]].PropTypes.Num() - 1)], tilePos, FRotator::ZeroRotator, params);
+
+							if (na) propsPlaced++;
+						}
+					}
+				}
+			}
+
+			if (++maxItr > 10000) break;
+		}
+		
 	}
 }
 
