@@ -35,6 +35,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	TSubclassOf<class ARobotRecycler> RecyclerType;
 
+	UPROPERTY(EditAnywhere, Category = WorldGen)
+	UMaterial* ForceFieldMaterial;
+
+	UPROPERTY(EditAnywhere, Category = WorldGen)
+	TSubclassOf<class ARobot> PlayerRobotType;
+
 	// room types. assume 0 is corridor, 1 is starting room, 2 is central computer room
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	TArray<FRoomType> RoomTypes;
