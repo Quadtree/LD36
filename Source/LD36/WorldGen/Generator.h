@@ -33,6 +33,9 @@ public:
 	TSubclassOf<AActor> WallType;
 
 	UPROPERTY(EditAnywhere, Category = WorldGen)
+	TSubclassOf<AActor> PerimeterWallType;
+
+	UPROPERTY(EditAnywhere, Category = WorldGen)
 	TSubclassOf<class ARobotRecycler> RecyclerType;
 
 	UPROPERTY(EditAnywhere, Category = WorldGen)

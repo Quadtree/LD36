@@ -19,6 +19,11 @@ void AProp::BeginPlay()
 
 float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
+	if (ImmuneToNonFire && DamageEvent.DamageTypeClass != UFireDamge::StaticClass())
+	{
+		return 0;
+	}
+
 	if (DamageEvent.DamageTypeClass != UStunDamage::StaticClass())
 	{
 		Health -= FMath::Max(DamageAmount, 0.f);

@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Missile)
 	float ExplosionDamage;
 
+	UPROPERTY(EditAnywhere, Category = Missile)
+	bool ImmuneToNonFire;
+
 	virtual void BeginPlay() override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
