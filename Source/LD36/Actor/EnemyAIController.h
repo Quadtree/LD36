@@ -18,6 +18,8 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 private:
 	float NextScanCharge;
+
+	float StopMovementTimer;
 	
 	bool Aggroed;
 };

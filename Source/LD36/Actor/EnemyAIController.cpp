@@ -26,8 +26,9 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 	}
 
 	NextScanCharge += DeltaSeconds;
+	StopMovementTimer -= DeltaSeconds;
 
-	if (NextScanCharge >= 1 && !Aggroed)
+	if (NextScanCharge >= 1)
 	{
 		if (pc)
 		{
@@ -38,13 +39,26 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 			{
 				Aggroed = true;
 				UE_LOG(LogTemp, Display, TEXT("%s Aggroed"), *GetName());
+
+				if (auto pwn = Cast<ARobot>(GetPawn()))
+				{
+					if (pwn->HasMissile)
+					{
+						StopMovement();
+						FRotator rot = FRotator(0, FMath::RadiansToDegrees(FMath::Atan2(pc->GetActorLocation().Y - pwn->GetActorLocation().Y, pc->GetActorLocation().X - pwn->GetActorLocation().X)), 0);
+						pwn->SetActorRotation(rot);
+						pwn->TryFireMissile = true;
+						SetControlRotation(rot);
+						StopMovementTimer = 2;
+					}
+				}
 			}
 		}
 
 		NextScanCharge = 0;
 	}
 
-	if (Aggroed && pc)
+	if (Aggroed && pc && StopMovementTimer <= 0)
 	{
 		MoveToLocation(pc->GetActorLocation(), 80);
 

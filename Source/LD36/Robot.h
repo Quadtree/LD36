@@ -38,6 +38,10 @@ public:
 
 	bool TryKick;
 
+	bool TryFireMissile;
+
+	float MissileCharge;
+
 	float PunchLockoutTimer;
 	float KickLockoutTimer;
 
@@ -63,6 +67,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon)
 	bool HasMace;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon)
+	TSubclassOf<AActor> MissileType;
 	
 private:
 	bool ManualMovementMode;
@@ -72,6 +79,7 @@ private:
 
 	void SetTryPunch(float value);
 	void SetTryKick(float value);
+	void SetTryFireMissile(float value);
 
 	FVector2D ManualMovement;
 

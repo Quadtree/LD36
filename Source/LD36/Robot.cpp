@@ -92,6 +92,22 @@ void ARobot::Tick( float DeltaTime )
 			prim->SetVisibility(HasMace);
 		}
 	}
+
+	MissileCharge += DeltaTime;
+
+	if (MissileCharge >= 2 && TryFireMissile)
+	{
+		for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "Missile"))
+		{
+			if (auto prim = Cast<UPrimitiveComponent>(comp))
+			{
+				if (GetWorld()->SpawnActor<AActor>(MissileType, prim->GetComponentLocation() + prim->GetComponentRotation().RotateVector(FVector(100,0,0)), prim->GetComponentRotation())) MissileCharge = 0;
+
+				if (MissileCharge < 2) break;
+			}
+			if (MissileCharge < 2) break;
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -158,6 +174,11 @@ void ARobot::SetTryPunch(float value)
 void ARobot::SetTryKick(float value)
 {
 	TryKick = value > 0.5f;
+}
+
+void ARobot::SetTryFireMissile(float value)
+{
+	TryFireMissile = value >= 0.5f;
 }
 
 void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damage, float stunDamage, float minCoreDistance)
