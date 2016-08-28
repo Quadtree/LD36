@@ -5,6 +5,7 @@
 #include "Actor/RobotRecycler.h"
 #include "Robot.h"
 #include "Actor/Prop.h"
+#include "Actor/Dialog.h"
 
 // Sets default values
 AGenerator::AGenerator(const FObjectInitializer& oi)
@@ -387,6 +388,51 @@ void AGenerator::Tick( float DeltaTime )
 
 						FVector tilePos = GetActorLocation() + FVector(TileSize * (FMath::RandRange(0, GridSize - 1) - GridSize / 2), TileSize * (FMath::RandRange(0, GridSize - 1) - GridSize / 2), 200);
 						GetWorld()->SpawnActor<ARobot>(EliteEnemySpawns[FMath::RandRange(0, EliteEnemySpawns.Num() - 1)], tilePos, FRotator::ZeroRotator)->SpawnDefaultController();
+
+						TArray<bool> isPC;
+						isPC.Add(true);
+						isPC.Add(false);
+						isPC.Add(false);
+						isPC.Add(true);
+						isPC.Add(false);
+
+						for (int32 i=0;i<isPC.Num();++i)
+						{
+							auto dialog = GetWorld()->SpawnActor<ADialog>();
+
+							if (dialog)
+							{
+								if (isPC[i])
+								{
+									for (TActorIterator<ARobot> itr(GetWorld()); itr; ++itr)
+									{
+										if (Cast<APlayerController>(itr->GetController()))
+										{
+											dialog->AttachToActor(*itr, FAttachmentTransformRules::KeepRelativeTransform);
+										}
+									}
+								}
+								else
+								{
+									AProp* trg = nullptr;
+									int32 n = 0;
+
+									for (TActorIterator<AProp> itr(GetWorld()); itr; ++itr)
+									{
+										if (itr->IsMainComputer && FMath::RandRange(0, n++) == 0)
+										{
+											trg = *itr;
+										}
+									}
+
+									if (trg) dialog->AttachToActor(trg, FAttachmentTransformRules::KeepRelativeTransform);
+								}
+
+								dialog->Duration = 4;
+								dialog->SetKey(FName(*(FString(TEXT("mc_cnv_")) + FString::FromInt(i))));
+								dialog->StartDelay = 4 * i;
+							}
+						}
 					}
 				}
 			}

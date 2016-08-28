@@ -76,4 +76,16 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 			if (FVector::DistSquared(pwn->GetActorLocation(), pc->GetActorLocation()) < FMath::Square(200)) pwn->TryPunch = true;
 		}
 	}
+
+	if (Aggroed && pc)
+	{
+		if (auto pwn = Cast<ARobot>(pc))
+		{
+			if (!pwn->SDF_FirstContact)
+			{
+				pwn->Say(TEXT("contact"));
+				pwn->SDF_FirstContact = true;
+			}
+		}
+	}
 }

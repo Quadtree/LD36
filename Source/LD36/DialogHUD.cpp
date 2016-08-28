@@ -12,7 +12,7 @@ void ADialogHUD::DrawHUD()
 	{
 		if (!i->GetText().IsEmpty())
 		{
-			FVector pos = Project(i->GetActorLocation());
+			FVector pos = Project(i->GetActorLocation() + FVector(0,0,150));
 
 			if (pos.Z > 0 && pos.X >= -200 && pos.Y >= -200 && pos.X <= Canvas->ClipX + 200 && pos.Y <= Canvas->ClipY + 200)
 			{

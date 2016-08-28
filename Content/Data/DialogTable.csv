@@ -2,3 +2,14 @@ Name,Text
 intro0,I need to move using WASD or the right analog stick!
 intro1,There must be a mistake! I'm not ancient technology!
 intro2,I'd better take this up with the central computer. It should be in the center of this place.
+mc_cnv_0,Main computer! There's a mistake! I'm not obsolete.
+mc_cnv_1,"Correct. However, there is a recall on your model."
+mc_cnv_2,In rare cases a hardware defect caused destructive tendencies.
+mc_cnv_3,"Oh. Well, I don't think that applies to me."
+mc_cnv_4,"Of course. Well, just be on your way…"
+see_missile,"Ooh, a missile launcher! I bet I could use that to get out…"
+get_missile,Now I can use this missile with / or gamepad Y. Now to use it on the outer wall!
+see_mace,"Whoa, a mace! I need to grab that!"
+get_mace,Now this is more like it!
+contact,"Uh oh, they don't look too friendly. I can use comma and period, or the triggers to fight!"
+see_first_oil,"Oil barrels! If I smash those, I'll get some health back."

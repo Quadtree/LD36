@@ -45,7 +45,7 @@ FText ADialog::GetText()
 {
 	if (StartDelay > 0)
 	{
-		return FText::FromString(TEXT("<WAIT>"));
+		return FText::FromString(TEXT(""));
 	}
 
 	FString ctx;

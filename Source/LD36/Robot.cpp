@@ -5,6 +5,7 @@
 #include "DamageType/PhysicalDamage.h"
 #include "DamageType/StunDamage.h"
 #include "Actor/Prop.h"
+#include "Actor/Dialog.h"
 
 // Sets default values
 ARobot::ARobot()
@@ -174,6 +175,16 @@ float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, A
 	UpdateStandingStatus();
 
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
+void ARobot::Say(FName key, float delay)
+{
+	auto dialog = GetWorld()->SpawnActor<ADialog>();
+	dialog->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+	dialog->Duration = 4;
+	dialog->SetKey(key);
+	dialog->StartDelay = delay;
 }
 
 void ARobot::SetMovementLeftRight(float value)

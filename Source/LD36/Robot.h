@@ -70,6 +70,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon)
 	TSubclassOf<AActor> MissileType;
+
+	bool SDF_FirstContact;
+	bool SDF_GotMace;
+	bool SDF_SawMace;
+	bool SDF_GotMissile;
+	bool SDF_SawMissile;
+	bool SDF_SawFirstOil;
+
+	void Say(FName key, float delay = 0);
 	
 private:
 	bool ManualMovementMode;
