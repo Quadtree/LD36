@@ -58,7 +58,9 @@ void ADialog::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	StartDelay -= DeltaTime;
+	bool isPrimary = IsPrimary();
+
+	if (isPrimary) StartDelay -= DeltaTime * 20;
 
 	if (StartDelay <= 0)
 	{
@@ -66,7 +68,7 @@ void ADialog::Tick( float DeltaTime )
 		if (Duration <= 0) Destroy();
 	}
 
-	if (!IsPrimary())
+	if (!isPrimary)
 	{
 		StartDelay = FMath::Max(StartDelay, 0.5f);
 	}
