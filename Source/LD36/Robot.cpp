@@ -66,7 +66,7 @@ void ARobot::Tick( float DeltaTime )
 	}
 
 	if (IsKicking) MeleeAttack(FootBoneName, KickLockoutTimer, 20, 40, 25);
-	if (IsPunching) MeleeAttack(FistBoneName, PunchLockoutTimer, 30, 20, 55);
+	if (IsPunching) MeleeAttack(FistBoneName, PunchLockoutTimer, 30*(HasMace?2.5f:1.f), 20 * (HasMace ? 2.5f : 1.f), 55);
 
 	KickLockoutTimer -= DeltaTime * ActionSpeed;
 	PunchLockoutTimer -= DeltaTime * ActionSpeed;
