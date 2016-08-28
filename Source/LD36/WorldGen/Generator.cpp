@@ -2,6 +2,7 @@
 
 #include "LD36.h"
 #include "Generator.h"
+#include "Actor/RobotRecycler.h"
 
 // Sets default values
 AGenerator::AGenerator(const FObjectInitializer& oi)
@@ -60,6 +61,22 @@ void AGenerator::BeginPlay()
 	int32 pStartRoomY = 3 + FMath::RandRange(0, 1) * (GridSize - 6);
 
 	TryPlaceRoom(pStartRoomX - 3, pStartRoomY - 3, pStartRoomX + 3, pStartRoomY + 3, nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, 1);
+	FVector startRoomPos = GetActorLocation() + FVector(TileSize * (pStartRoomX - GridSize / 2), TileSize * (pStartRoomY - GridSize / 2), 100);
+
+	for (int32 x = pStartRoomX; x > 0; --x) {
+		if (roomIds[x][pStartRoomY] != 2) {
+			roomIds[x][pStartRoomY] = 2;
+			totalTilesPlaced++;
+		}
+	}
+
+	for (TActorIterator<APawn> p(GetWorld()); p; ++p)
+	{
+		p->SetActorLocation(startRoomPos + FVector(200, 0, 300));
+	}
+
+	auto a = GetWorld()->SpawnActor<AActor>(RecyclerType, startRoomPos, FRotator(0,180,0));
+	a->SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));
 
 	while (totalTilesPlaced < totalTilesNeeded / 10)
 	{
