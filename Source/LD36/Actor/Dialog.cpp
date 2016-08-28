@@ -70,7 +70,7 @@ void ADialog::Tick( float DeltaTime )
 	{
 		StartDelay = FMath::Max(StartDelay, 0.5f);
 	}
-	else
+	else if (StartDelay <= 0)
 	{
 		if (!AudioComponent->IsPlaying() && SpeakQueue.Num() > 0)
 		{
@@ -80,8 +80,6 @@ void ADialog::Tick( float DeltaTime )
 				if (sound->GetName() == SpeakQueue[0])
 				{
 					AudioComponent->SetSound(sound);
-					AudioComponent->SetPitchMultiplier(0.8f);
-					
 					AudioComponent->Play();
 					break;
 				}
@@ -89,6 +87,11 @@ void ADialog::Tick( float DeltaTime )
 
 			SpeakQueue.RemoveAt(0);
 		}
+
+		if (SpeakQueue.Num() > 0 || AudioComponent->IsPlaying())
+			Duration = FMath::Max(Duration, 0.25f);
+		else
+			Duration = -1;
 	}
 
 
