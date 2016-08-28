@@ -20,6 +20,13 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	
+	UPROPERTY(EditAnywhere, Category = WorldGen)
+	TSubclassOf<class ARobot> PlayerRobotType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WorldGen)
+	bool ShouldSpawn;
+
+private:
+	float SpawnCharge;
 	
 };

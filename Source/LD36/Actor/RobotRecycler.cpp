@@ -2,6 +2,7 @@
 
 #include "LD36.h"
 #include "RobotRecycler.h"
+#include "Robot.h"
 
 
 // Sets default values
@@ -16,7 +17,8 @@ ARobotRecycler::ARobotRecycler()
 void ARobotRecycler::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	SpawnCharge = 1000;
+	ShouldSpawn = true;
 }
 
 // Called every frame
@@ -49,6 +51,32 @@ void ARobotRecycler::Tick( float DeltaTime )
 				}
 			}
 		}
+	}
+	TArray<FOverlapResult> res2;
+
+	if (GetWorld()->OverlapMultiByObjectType(res2, GetActorLocation(), FQuat::Identity, FCollisionObjectQueryParams::AllDynamicObjects, FCollisionShape::MakeSphere(50)))
+	{
+		for (auto a2 : res2)
+		{
+			if (a2.Actor.IsValid())
+			{
+				a2.Actor->TakeDamage(10000, FDamageEvent(), nullptr, nullptr);
+
+				auto rbt = Cast<ARobot>(a2.Actor.Get());
+
+				if (rbt)
+				{
+					if (!Cast<APlayerController>(rbt->GetController())) rbt->Destroy();
+				}
+			}
+		}
+	}
+
+	SpawnCharge += DeltaTime;
+
+	if (SpawnCharge >= 3 && ShouldSpawn) {
+		GetWorld()->SpawnActor<ARobot>(PlayerRobotType, GetActorLocation() + FVector(-500, 0, 120), FRotator::ZeroRotator)->SpawnDefaultController();
+		SpawnCharge = 0;
 	}
 }
 
