@@ -3,6 +3,7 @@
 #include "LD36.h"
 #include "Dialog.h"
 #include "DialogTableRow.h"
+#include "Regex.h"
 
 
 // Sets default values
@@ -16,6 +17,30 @@ ADialog::ADialog(const FObjectInitializer& oi)
 
 	SceneComponent = oi.CreateDefaultSubobject<USceneComponent>(this, "SceneComponent");
 	RootComponent = SceneComponent;
+
+	static TArray<ConstructorHelpers::FObjectFinder<USoundBase>> soundFinders;
+
+	if (soundFinders.Num() == 0)
+	{
+		FRegexPattern pattern(TEXT("[a-z]+"));
+
+		for (auto name : dt.Object->GetRowNames())
+		{
+			FString ctx;
+			FRegexMatcher m(pattern, dt.Object->FindRow<FDialogTableRow>(name, ctx)->Text.ToLower());
+
+			while (m.FindNext())
+			{
+				UE_LOG(LogTemp, Display, TEXT("word=%s"), *m.GetCaptureGroup(0));
+				soundFinders.Add(ConstructorHelpers::FObjectFinder<USoundBase>(*(FString(TEXT("/Game/Sounds/Dialog/")) + m.GetCaptureGroup(0))));
+			}
+		}
+	}
+
+	for (auto sf : soundFinders)
+	{
+		if (sf.Succeeded()) Words.Add(sf.Object);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -39,6 +64,11 @@ void ADialog::Tick( float DeltaTime )
 	}
 
 	if (!IsPrimary()) StartDelay = FMath::Max(StartDelay, 0.5f);
+
+	for (auto word : Words)
+	{
+		word->GetName();
+	}
 
 	//DrawDebugString(GetWorld(), GetActorLocation(), GetText().ToString(), nullptr, FColor::Green);
 }

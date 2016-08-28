@@ -34,8 +34,13 @@ public:
 	UPROPERTY()
 	class UDataTable* StringTable;
 
+	UPROPERTY()
+	TArray<USoundBase*> Words;
+
 	bool IsPrimary();
 
 private:
 	FName Key;
+
+	TArray<FString> SpeakQueue;
 };
