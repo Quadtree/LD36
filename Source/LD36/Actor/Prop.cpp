@@ -19,6 +19,10 @@ void AProp::BeginPlay()
 
 float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
+	FVector center = GetActorLocation();
+
+	if (auto comp = FindComponentByClass<UStaticMeshComponent>()) center = comp->GetComponentLocation();
+
 	if (ImmuneToNonFire && DamageEvent.DamageTypeClass != UFireDamge::StaticClass())
 	{
 		return 0;
@@ -38,7 +42,7 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 				if (!prim->IsSimulatingPhysics())
 				{
 					prim->SetSimulatePhysics(true);
-					UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+					UGameplayStatics::PlaySoundAtLocation(this, DeathSound, center);
 				}
 			}
 		}
@@ -48,12 +52,12 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 	{
 		Destroy();
 
-		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Explosion, GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, center);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Explosion, center);
 
 		TArray<FOverlapResult> res;
 
-		if (GetWorld()->OverlapMultiByObjectType(res, GetActorLocation(), FQuat::Identity, FCollisionObjectQueryParams::AllObjects, FCollisionShape::MakeSphere(ExplosionRadius)))
+		if (GetWorld()->OverlapMultiByObjectType(res, center, FQuat::Identity, FCollisionObjectQueryParams::AllObjects, FCollisionShape::MakeSphere(ExplosionRadius)))
 		{
 			TMap<TWeakObjectPtr<AActor>, TArray<TWeakObjectPtr<UPrimitiveComponent>>> compsHit;
 
@@ -82,7 +86,7 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 
 					damageEvent.ComponentHits.Add(hitRes);
 				}
-				damageEvent.Origin = GetActorLocation();
+				damageEvent.Origin = center;
 				damageEvent.Params.BaseDamage = ExplosionDamage;
 				damageEvent.Params.DamageFalloff = 1;
 				damageEvent.Params.InnerRadius = ExplosionRadius;
