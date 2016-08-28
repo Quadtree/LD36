@@ -18,6 +18,9 @@ ADialog::ADialog(const FObjectInitializer& oi)
 	SceneComponent = oi.CreateDefaultSubobject<USceneComponent>(this, "SceneComponent");
 	RootComponent = SceneComponent;
 
+	AudioComponent = oi.CreateDefaultSubobject<UAudioComponent>(this, "AudioComponent");
+	AudioComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
 	static TArray<ConstructorHelpers::FObjectFinder<USoundBase>> soundFinders;
 
 	if (soundFinders.Num() == 0)
@@ -63,12 +66,29 @@ void ADialog::Tick( float DeltaTime )
 		if (Duration <= 0) Destroy();
 	}
 
-	if (!IsPrimary()) StartDelay = FMath::Max(StartDelay, 0.5f);
-
-	for (auto word : Words)
+	if (!IsPrimary())
 	{
-		word->GetName();
+		StartDelay = FMath::Max(StartDelay, 0.5f);
 	}
+	else
+	{
+		if (!AudioComponent->IsPlaying() && SpeakQueue.Num() > 0)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Attempting to play %s"), *SpeakQueue[0]);
+			for (auto sound : Words)
+			{
+				if (sound->GetName() == SpeakQueue[0])
+				{
+					AudioComponent->SetSound(sound);
+					AudioComponent->Play();
+					break;
+				}
+			}
+
+			SpeakQueue.RemoveAt(0);
+		}
+	}
+
 
 	//DrawDebugString(GetWorld(), GetActorLocation(), GetText().ToString(), nullptr, FColor::Green);
 }
@@ -98,6 +118,20 @@ FText ADialog::GetText()
 void ADialog::SetKey(FName key)
 {
 	this->Key = key;
+
+	FString ctx;
+	FDialogTableRow* row = StringTable->FindRow<FDialogTableRow>(Key, ctx);
+
+	if (row)
+	{
+		FRegexPattern pattern(TEXT("[a-z]+"));
+		FRegexMatcher m(pattern, row->Text.ToLower());
+
+		while (m.FindNext())
+		{
+			SpeakQueue.Add(m.GetCaptureGroup(0));
+		}
+	}
 }
 
 bool ADialog::IsPrimary()

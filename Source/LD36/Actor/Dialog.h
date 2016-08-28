@@ -31,6 +31,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Dialog)
 	class USceneComponent* SceneComponent;
 
+	UPROPERTY(VisibleAnywhere, Category = Dialog)
+	class UAudioComponent* AudioComponent;
+
 	UPROPERTY()
 	class UDataTable* StringTable;
 
