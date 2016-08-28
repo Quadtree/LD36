@@ -4,6 +4,7 @@
 #include "Prop.h"
 #include "DamageType/StunDamage.h"
 #include "DamageType/FireDamge.h"
+#include "Robot.h"
 
 AProp::AProp()
 {
@@ -48,6 +49,8 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 			{
 				if (a.Actor.IsValid() && a.Component.IsValid())
 				{
+					if (ExplosionDamage < 0 && !Cast<ARobot>(a.Actor.Get())) continue;
+
 					if (!compsHit.Contains(a.Actor)) compsHit.Add(a.Actor, TArray<TWeakObjectPtr<UPrimitiveComponent>>());
 					compsHit[a.Actor].Add(a.Component);
 				}
@@ -76,7 +79,7 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 
 				if (a.Key.IsValid())
 				{
-					damageEvent.DamageTypeClass = UFireDamge::StaticClass();
+					damageEvent.DamageTypeClass = ExplosionDamage > 0 ? UFireDamge::StaticClass() : UDamageType::StaticClass();
 					a.Key->TakeDamage(ExplosionDamage, damageEvent, nullptr, nullptr);
 				}
 
