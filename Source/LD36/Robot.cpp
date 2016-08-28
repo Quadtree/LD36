@@ -129,9 +129,11 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 
 	TArray<FOverlapResult> res;
 
-	DrawDebugSphere(GetWorld(), attackLocation, 30, 5, FColor::Red);
+	const float DAMAGE_AREA_RADIUS = 7;
 
-	if (GetWorld()->OverlapMultiByObjectType(res, attackLocation, FQuat::Identity, FCollisionObjectQueryParams::AllObjects, FCollisionShape::MakeSphere(30)))
+	DrawDebugSphere(GetWorld(), attackLocation, DAMAGE_AREA_RADIUS, 5, FColor::Red);
+
+	if (GetWorld()->OverlapMultiByObjectType(res, attackLocation, FQuat::Identity, FCollisionObjectQueryParams::AllObjects, FCollisionShape::MakeSphere(DAMAGE_AREA_RADIUS)))
 	{
 		TMap<TWeakObjectPtr<AActor>, TArray<TWeakObjectPtr<UPrimitiveComponent>>> compsHit;
 
