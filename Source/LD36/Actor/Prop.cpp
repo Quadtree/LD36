@@ -4,11 +4,28 @@
 #include "Prop.h"
 #include "DamageType/StunDamage.h"
 
+void AProp::BeginPlay()
+{
+	Super::BeginPlay();
+	MaxHealth = Health;
+}
+
 float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
 	if (DamageEvent.DamageTypeClass != UStunDamage::StaticClass())
 	{
 		Health -= FMath::Max(DamageAmount, 0.f);
+	}
+
+	if (Health / MaxHealth <= DetachPct)
+	{
+		for (auto& a : GetComponentsByClass(UPrimitiveComponent::StaticClass()))
+		{
+			if (auto prim = Cast<UPrimitiveComponent>(a))
+			{
+				prim->SetSimulatePhysics(true);
+			}
+		}
 	}
 
 	if (Health <= 0)
