@@ -12,8 +12,8 @@ UCLASS()
 class LD36_API UPhysicalDamage : public UDamageType
 {
 	GENERATED_BODY()
-	
-	
+public:
+	UPhysicalDamage();
 	
 	
 };

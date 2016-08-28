@@ -51,50 +51,9 @@ void ARobot::Tick( float DeltaTime )
 		AddMovementInput(GetActorRotation().RotateVector(FVector::ForwardVector), ManualMovement.Size());
 	}
 
-	if (StunTime > 0 && OnFeet)
-	{
-		GetMesh()->SetSimulatePhysics(true);
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		GetMovementComponent()->SetActive(false);
-		GetMesh()->SetPhysicsBlendWeight(1);
-		GetMesh()->SetEnablePhysicsBlending(true);
-		FallBlend = 1;
-		OnFeet = false;
-	}
-	
-	if (!OnFeet)
-	{
-		if (StunTime > 0)
-		{
-			//FallBlend -= DeltaTime * 0.6f;
-			GetMesh()->SetPhysicsBlendWeight(FMath::Clamp((StunTime*0.6f) + 0.75f, 0.f, 1.f));
-		}
-		else
-		{
-			GetMesh()->SetSimulatePhysics(false);
-			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			GetMovementComponent()->SetActive(true);
-			GetMesh()->SetEnablePhysicsBlending(false);
-			OnFeet = true;
-		}
-	}
+	UpdateStandingStatus();
 
-	if (!OnFeet && FallBlend == 1)
-	{
-		OnGroundLoc = GetMesh()->GetBoneLocation("Bone");
-	}
-
-	if (!OnFeet)
-	{
-		//DrawDebugSphere(GetWorld(), OnGroundLoc, 50, 5, FColor::Red);
-		//DrawDebugSphere(GetWorld(), GetCapsuleComponent()->GetComponentLocation(), 50, 5, FColor::Green);
-
-		GetCapsuleComponent()->SetWorldLocation(FVector(OnGroundLoc.X, OnGroundLoc.Y, GetCapsuleComponent()->GetComponentLocation().Z));
-	}
-
-	StunTime -= DeltaTime;
+	StunTime = FMath::Max(StunTime - DeltaTime, 0.f);
 
 	IsKicking = false;
 	IsPunching = false;
@@ -110,6 +69,8 @@ void ARobot::Tick( float DeltaTime )
 
 	KickLockoutTimer -= DeltaTime;
 	PunchLockoutTimer -= DeltaTime;
+
+	if (Health <= 0) StunTime = 999999;
 }
 
 // Called to bind functionality to input
@@ -122,6 +83,22 @@ void ARobot::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 
 	InputComponent->BindAxis("Punch", this, &ARobot::SetTryPunch);
 	InputComponent->BindAxis("Kick", this, &ARobot::SetTryKick);
+}
+
+float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	if (DamageEvent.DamageTypeClass == UStunDamage::StaticClass())
+	{
+		StunTime += DamageAmount * FMath::FRandRange(1.f / 160.f, 3.f / 160.f);
+	}
+	else
+	{
+		Health = FMath::Min(Health - DamageAmount, MaxHealth);
+	}
+
+	UpdateStandingStatus();
+
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 void ARobot::SetMovementLeftRight(float value)
@@ -162,8 +139,12 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 		{
 			if (a.Actor.Get() == this) continue;
 
+			if (!Cast<ARobot>(a.Actor.Get())) continue;
+
 			if (a.Actor.Get() && a.Component.Get())
 			{
+				if (!Cast<USkinnedMeshComponent>(a.Component.Get())) continue;
+
 				if (!compsHit.Contains(a.Actor)) compsHit.Add(a.Actor, TArray<TWeakObjectPtr<UPrimitiveComponent>>());
 				
 				compsHit[a.Actor].Add(a.Component);
@@ -181,8 +162,15 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 				hitRes.Actor = a.Key;
 				hitRes.bBlockingHit = true;
 				hitRes.Component = c;
+
+				damageEvent.ComponentHits.Add(hitRes);
 			}
-			damageEvent.Origin = attackLocation;
+			damageEvent.Origin = attackLocation + FVector(0, 0, -40);
+			damageEvent.Params.BaseDamage = 20;
+			damageEvent.Params.DamageFalloff = 1;
+			damageEvent.Params.InnerRadius = 50;
+			damageEvent.Params.OuterRadius = 100;
+			damageEvent.Params.MinimumDamage = 5;
 			
 			damageEvent.DamageTypeClass = UPhysicalDamage::StaticClass();
 			a.Key->TakeDamage(damage, damageEvent, nullptr, nullptr);
@@ -192,6 +180,52 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 
 			lockoutTimer = 0.5f;
 		}
+	}
+}
+
+void ARobot::UpdateStandingStatus()
+{
+	if (StunTime > 0 && OnFeet)
+	{
+		GetMesh()->SetSimulatePhysics(true);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMovementComponent()->SetActive(false);
+		GetMesh()->SetPhysicsBlendWeight(1);
+		GetMesh()->SetEnablePhysicsBlending(true);
+		FallBlend = 1;
+		OnFeet = false;
+	}
+
+	if (!OnFeet)
+	{
+		if (StunTime > 0)
+		{
+			//FallBlend -= DeltaTime * 0.6f;
+			GetMesh()->SetPhysicsBlendWeight(FMath::Clamp((StunTime*0.6f) + 0.75f, 0.f, 1.f));
+		}
+		else
+		{
+			GetMesh()->SetSimulatePhysics(false);
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			GetMovementComponent()->SetActive(true);
+			GetMesh()->SetEnablePhysicsBlending(false);
+			OnFeet = true;
+		}
+	}
+
+	if (!OnFeet && FallBlend == 1)
+	{
+		OnGroundLoc = GetMesh()->GetBoneLocation("Bone");
+	}
+
+	if (!OnFeet)
+	{
+		//DrawDebugSphere(GetWorld(), OnGroundLoc, 50, 5, FColor::Red);
+		//DrawDebugSphere(GetWorld(), GetCapsuleComponent()->GetComponentLocation(), 50, 5, FColor::Green);
+
+		GetCapsuleComponent()->SetWorldLocation(FVector(OnGroundLoc.X, OnGroundLoc.Y, GetCapsuleComponent()->GetComponentLocation().Z));
 	}
 }
 

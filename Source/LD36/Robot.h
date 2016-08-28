@@ -46,6 +46,14 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Attack)
 	FName FootBoneName;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	UPROPERTY(EditAnywhere, Category = Health)
+	float Health;
+
+	UPROPERTY(EditAnywhere, Category = Health)
+	float MaxHealth;
 	
 private:
 	bool ManualMovementMode;
@@ -65,4 +73,6 @@ private:
 	FVector OnGroundLoc;
 
 	void MeleeAttack(const FName& boneName, float& lockoutTimer, float damage, float stunDamage);
+
+	void UpdateStandingStatus();
 };

@@ -4,5 +4,15 @@
 #include "PhysicalDamage.h"
 
 
+UPhysicalDamage::UPhysicalDamage()
+{
+	bCausedByWorld = false;
+	bScaleMomentumByMass = false;
+	DamageImpulse = 0;
+	bRadialDamageVelChange = false;
+	DestructibleImpulse = 0;
+	DestructibleDamageSpreadScale = 0;
+	DamageFalloff = 1;
+}
 
 

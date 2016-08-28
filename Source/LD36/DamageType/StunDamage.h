@@ -12,8 +12,8 @@ UCLASS()
 class LD36_API UStunDamage : public UDamageType
 {
 	GENERATED_BODY()
-	
-	
+public:
+	UStunDamage();
 	
 	
 };
