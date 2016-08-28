@@ -31,4 +31,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Missile)
 	float ExplosionDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+	class USoundBase* DeathSound;
 };

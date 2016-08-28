@@ -48,6 +48,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Missile)
 	bool IsMainComputer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+	class USoundBase* DeathSound;
+
 	virtual void BeginPlay() override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;

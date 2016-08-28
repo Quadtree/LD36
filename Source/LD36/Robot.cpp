@@ -26,6 +26,7 @@ void ARobot::BeginPlay()
 	
 	DefaultMeshRelativeTransform = GetMesh()->GetRelativeTransform();
 	FallBlend = 0;
+	Intact = true;
 }
 
 // Called every frame
@@ -103,6 +104,8 @@ void ARobot::Tick( float DeltaTime )
 			if (auto prim = Cast<UPrimitiveComponent>(comp))
 			{
 				if (GetWorld()->SpawnActor<AActor>(MissileType, prim->GetComponentLocation() + prim->GetComponentRotation().RotateVector(FVector(100,0,0)), prim->GetComponentRotation())) MissileCharge = 0;
+
+				UGameplayStatics::PlaySoundAtLocation(this, MissileLaunchSound, GetActorLocation());
 
 				if (MissileCharge < 2) break;
 			}
@@ -303,6 +306,8 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 					damageEvent.DamageTypeClass = UStunDamage::StaticClass();
 					a.Key->TakeDamage(stunDamage, damageEvent, nullptr, nullptr);
 				}
+
+				UGameplayStatics::PlaySoundAtLocation(this, AttackHitSound, GetActorLocation());
 			}
 
 			lockoutTimer = 0.5f;
@@ -353,6 +358,12 @@ void ARobot::UpdateStandingStatus()
 		//DrawDebugSphere(GetWorld(), GetCapsuleComponent()->GetComponentLocation(), 50, 5, FColor::Green);
 
 		GetCapsuleComponent()->SetWorldLocation(FVector(OnGroundLoc.X, OnGroundLoc.Y, GetCapsuleComponent()->GetComponentLocation().Z));
+	}
+
+	if (Health <= 0 && Intact)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+		Intact = false;
 	}
 }
 

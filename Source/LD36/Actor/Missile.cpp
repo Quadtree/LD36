@@ -35,6 +35,9 @@ void AMissile::Tick( float DeltaTime )
 	{
 		Destroy();
 
+		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Explosion, GetActorLocation());
+
 		if (GetWorld()->OverlapMultiByObjectType(res, GetActorLocation(), FQuat::Identity, FCollisionObjectQueryParams::AllObjects, FCollisionShape::MakeSphere(ExplosionRadius), p))
 		{
 			TMap<TWeakObjectPtr<AActor>, TArray<TWeakObjectPtr<UPrimitiveComponent>>> compsHit;

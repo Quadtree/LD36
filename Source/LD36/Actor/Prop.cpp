@@ -35,7 +35,11 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 		{
 			if (auto prim = Cast<UPrimitiveComponent>(a))
 			{
-				prim->SetSimulatePhysics(true);
+				if (!prim->IsSimulatingPhysics())
+				{
+					prim->SetSimulatePhysics(true);
+					UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+				}
 			}
 		}
 	}
@@ -43,6 +47,9 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 	if (Health <= 0)
 	{
 		Destroy();
+
+		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Explosion, GetActorLocation());
 
 		TArray<FOverlapResult> res;
 
@@ -104,8 +111,18 @@ void AProp::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (Health / MaxHealth < OnFirePct)
+	bool onFire = Health / MaxHealth < OnFirePct;
+
+	if (onFire)
 	{
 		TakeDamage(BurnRate * DeltaSeconds, FDamageEvent(), nullptr, nullptr);
+	}
+
+	for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "OnFire"))
+	{
+		if (auto c2 = Cast<UPrimitiveComponent>(comp))
+		{
+			c2->SetVisibility(onFire);
+		}
 	}
 }

@@ -71,12 +71,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon)
 	TSubclassOf<AActor> MissileType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+	class USoundBase* AttackHitSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+	class USoundBase* DeathSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Sound)
+	class USoundBase* MissileLaunchSound;
+
 	bool SDF_FirstContact;
 	bool SDF_GotMace;
 	bool SDF_SawMace;
 	bool SDF_GotMissile;
 	bool SDF_SawMissile;
 	bool SDF_SawFirstOil;
+
+	bool Intact;
 
 	void Say(FName key, float delay = 0);
 	
