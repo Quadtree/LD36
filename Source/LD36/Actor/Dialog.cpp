@@ -35,7 +35,7 @@ ADialog::ADialog(const FObjectInitializer& oi)
 			while (m.FindNext())
 			{
 				UE_LOG(LogTemp, Display, TEXT("word=%s"), *m.GetCaptureGroup(0));
-				soundFinders.Add(ConstructorHelpers::FObjectFinder<USoundBase>(*(FString(TEXT("/Game/Sounds/Dialog/")) + m.GetCaptureGroup(0))));
+				soundFinders.Add(ConstructorHelpers::FObjectFinder<USoundBase>(*(FString(TEXT("/Game/Sounds/Dialog/cleaned/")) + m.GetCaptureGroup(0))));
 			}
 		}
 	}
@@ -80,6 +80,8 @@ void ADialog::Tick( float DeltaTime )
 				if (sound->GetName() == SpeakQueue[0])
 				{
 					AudioComponent->SetSound(sound);
+					AudioComponent->SetPitchMultiplier(0.8f);
+					
 					AudioComponent->Play();
 					break;
 				}
@@ -136,6 +138,9 @@ void ADialog::SetKey(FName key)
 
 bool ADialog::IsPrimary()
 {
+	if (!RootComponent || !RootComponent->IsValidLowLevel()) return true;
+	if (!RootComponent->GetAttachParent() || RootComponent->GetAttachParent()->IsValidLowLevel()) return true;
+
 	TArray<USceneComponent*> comps;
 	RootComponent->GetAttachParent()->GetChildrenComponents(false, comps);
 
