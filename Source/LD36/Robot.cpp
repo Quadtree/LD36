@@ -14,6 +14,7 @@ ARobot::ARobot()
 	ManualMovementMode = false;
 	OnFeet = true;
 	StunTime = 0;
+	ActionSpeed = 1;
 }
 
 // Called when the game starts or when spawned
@@ -66,8 +67,8 @@ void ARobot::Tick( float DeltaTime )
 	if (IsKicking) MeleeAttack(FootBoneName, KickLockoutTimer, 20, 40, 25);
 	if (IsPunching) MeleeAttack(FistBoneName, PunchLockoutTimer, 30, 20, 55);
 
-	KickLockoutTimer -= DeltaTime;
-	PunchLockoutTimer -= DeltaTime;
+	KickLockoutTimer -= DeltaTime * ActionSpeed;
+	PunchLockoutTimer -= DeltaTime * ActionSpeed;
 
 	GetMovementComponent()->SetActive(OnFeet);
 
@@ -97,7 +98,7 @@ float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, A
 
 		UE_LOG(LogTemp, Display, TEXT("distanceToCore=%s"), *FString::SanitizeFloat(distanceToCore));
 
-		if (distanceToCore > 25)
+		if (distanceToCore > 25 && !IsPunching)
 		{
 			if (DamageEvent.DamageTypeClass == UStunDamage::StaticClass())
 				DamageAmount /= 32;

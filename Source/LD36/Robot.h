@@ -54,6 +54,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Health)
 	float MaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed)
+	float ActionSpeed;
 	
 private:
 	bool ManualMovementMode;
