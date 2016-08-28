@@ -141,7 +141,7 @@ void ADialog::SetKey(FName key)
 
 bool ADialog::IsPrimary()
 {
-	if (!RootComponent || !RootComponent->IsValidLowLevel()) return true;
+	/*if (!RootComponent || !RootComponent->IsValidLowLevel()) return true;
 	if (!RootComponent->GetAttachParent() || RootComponent->GetAttachParent()->IsValidLowLevel()) return true;
 
 	TArray<USceneComponent*> comps;
@@ -156,6 +156,13 @@ bool ADialog::IsPrimary()
 			else
 				return true;
 		}
+	}
+
+	return true;*/
+
+	for (TActorIterator<ADialog> i(GetWorld()); i; ++i)
+	{
+		if (*i != this && i->AudioComponent->IsPlaying()) return false;
 	}
 
 	return true;
