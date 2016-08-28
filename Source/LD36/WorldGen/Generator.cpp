@@ -31,6 +31,9 @@ void AGenerator::BeginPlay()
 	TArray<TArray<bool>> open;
 	TArray<TArray<bool>> closed;
 
+	TArray<int32> roomTypeMapping;
+	
+
 	for (int32 x = 0; x < gridSizeX; ++x) {
 		roomIds.Add(TArray<int32>());
 		xDoor.Add(TArray<bool>());
@@ -51,6 +54,8 @@ void AGenerator::BeginPlay()
 	int32 nextRoomId = 1;
 	int32 maxItr = 0;
 
+	TryPlaceRoom(GridSize / 2 - 2, GridSize / 2 - 2, GridSize / 2 + 2, GridSize / 2 + 2, nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, 2);
+
 	while (totalTilesPlaced < totalTilesNeeded / 10)
 	{
 		int32 centerX = FMath::RandRange(0, gridSizeX - 1);
@@ -58,11 +63,11 @@ void AGenerator::BeginPlay()
 
 		if (FMath::RandBool())
 		{
-			TryPlaceRoom(centerX - FMath::RandRange(5, 20), centerY - FMath::RandRange(0, 1), centerX + FMath::RandRange(5, 20), centerY + FMath::RandRange(0, 1), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds);
+			TryPlaceRoom(centerX - FMath::RandRange(5, 20), centerY - FMath::RandRange(0, 1), centerX + FMath::RandRange(5, 20), centerY + FMath::RandRange(0, 1), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, 0);
 		}
 		else
 		{
-			TryPlaceRoom(centerX - FMath::RandRange(0, 1), centerY - FMath::RandRange(5, 20), centerX + FMath::RandRange(0, 1), centerY + FMath::RandRange(5, 20), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds);
+			TryPlaceRoom(centerX - FMath::RandRange(0, 1), centerY - FMath::RandRange(5, 20), centerX + FMath::RandRange(0, 1), centerY + FMath::RandRange(5, 20), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, 0);
 		}
 
 		if (++maxItr > 100000) {
@@ -71,12 +76,25 @@ void AGenerator::BeginPlay()
 		}
 	}
 
+	bool startingRoomPlaced = false;
+
 	while (totalTilesPlaced < totalTilesNeeded)
 	{
 		int32 centerX = FMath::RandRange(0, gridSizeX - 1);
 		int32 centerY = FMath::RandRange(0, gridSizeX - 1);
 
-		TryPlaceRoom(centerX - FMath::RandRange(0, 7), centerY - FMath::RandRange(0, 7), centerX + FMath::RandRange(0, 7), centerY + FMath::RandRange(0, 7), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds);
+		int32 roomType = -1;
+
+		if (!startingRoomPlaced)
+		{
+			roomType = 1;
+		}
+		else
+		{
+			roomType = FMath::RandRange(3, RoomTypes.Num() - 1);
+		}
+
+		TryPlaceRoom(centerX - FMath::RandRange(0, 7), centerY - FMath::RandRange(0, 7), centerX + FMath::RandRange(0, 7), centerY + FMath::RandRange(0, 7), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, roomType);
 
 		if (++maxItr > 100000) {
 			UE_LOG(LogTemp, Warning, TEXT("Too many iterations! Abort!"));
@@ -192,11 +210,31 @@ void AGenerator::BeginPlay()
 		}
 	}
 
+	TMap<UMaterial*, UInstancedStaticMeshComponent*> ismcMap;
+
 	for (int32 x = -1; x < gridSizeX; ++x) {
 		for (int32 y = -1; y < gridSizeY; ++y) {
 			FVector tilePos = GetActorLocation() + FVector(TileSize * (x - GridSize / 2), TileSize * (y - GridSize / 2), 0);
-			if (x >= 0 && y >= 0) {
-				FloorTiles->AddInstance(FTransform(FRotator(0, 0, 0), tilePos, FVector(1, 1, 1) * (TileSize / 100)));
+			if (x >= 0 && y >= 0)
+			{
+				int32 roomId = roomIds[x][y];
+				int32 roomType = 0;
+				if (roomId != -1) roomType = roomTypeMapping[roomId];
+
+				UMaterial* mat = RoomTypes[roomType].FloorMaterial;
+
+				if (!ismcMap.Contains(mat))
+				{
+					auto ismc = NewObject<UInstancedStaticMeshComponent>(this);
+					ismc->SetStaticMesh(FloorTiles->StaticMesh);
+					ismc->SetMaterial(0, mat);
+					ismc->AttachTo(RootComponent);
+					ismc->RegisterComponent();
+					FloorTileComponents.Add(ismc);
+					ismcMap.Add(mat, ismc);
+				}
+
+				ismcMap[mat]->AddInstance(FTransform(FRotator(0, 0, 0), tilePos, FVector(1, 1, 1) * (TileSize / 100)));
 			}
 
 			FActorSpawnParameters params;
@@ -242,7 +280,7 @@ void AGenerator::Tick( float DeltaTime )
 
 }
 
-void AGenerator::TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nextRoomId, int32& totalTilesPlaced, const int32& gridSizeX, const int32& gridSizeY, TArray<TArray<int32>>& roomIds)
+void AGenerator::TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nextRoomId, int32& totalTilesPlaced, const int32& gridSizeX, const int32& gridSizeY, TArray<TArray<int32>>& roomIds, TArray<int32>& roomTypeMappings, int32 roomType)
 {
 	x1 = FMath::Min(x1, x2);
 	y1 = FMath::Min(y1, y2);
@@ -274,6 +312,9 @@ void AGenerator::TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nex
 		}
 
 		UE_LOG(LogTemp, Display, TEXT("New room placed %s, %s"), *FString::FromInt(nextRoomId), *FString::FromInt(totalTilesPlaced));
+
+		while (roomTypeMappings.Num() < nextRoomId + 1) roomTypeMappings.Add(0);
+		roomTypeMappings[nextRoomId] = roomType;
 
 		nextRoomId++;
 	}

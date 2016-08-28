@@ -27,6 +27,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	class UInstancedStaticMeshComponent* FloorTiles;
 
+	TArray<class UInstancedStaticMeshComponent*> FloorTileComponents;
+
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	TSubclassOf<AActor> WallType;
 
@@ -35,5 +37,5 @@ public:
 	TArray<FRoomType> RoomTypes;
 
 private:
-	void TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nextRoomId, int32& totalTilesPlaced, const int32& gridSizeX, const int32& gridSizeY, TArray<TArray<int32>>& roomIds);
+	void TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nextRoomId, int32& totalTilesPlaced, const int32& gridSizeX, const int32& gridSizeY, TArray<TArray<int32>>& roomIds, TArray<int32>& roomTypeMappings, int32 roomType);
 };
