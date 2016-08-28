@@ -123,8 +123,27 @@ void ARobot::Tick( float DeltaTime )
 				{
 					if (rbt->Health <= 0)
 					{
-						if (rbt->HasMissile && !HasMissile) { rbt->HasMissile = false; HasMissile = true; }
-						if (rbt->HasMace && !HasMace) { rbt->HasMace = false; HasMace = true; }
+						if (rbt->HasMissile && !HasMissile) { rbt->HasMissile = false; HasMissile = true; Say(TEXT("get_missile")); }
+						if (rbt->HasMace && !HasMace) { rbt->HasMace = false; HasMace = true; Say(TEXT("get_mace")); }
+					}
+				}
+			}
+		}
+	}
+
+	if (!SDF_SawFirstOil && Cast<APlayerController>(GetController()))
+	{
+		TArray<FOverlapResult> res;
+		if (GetWorld()->OverlapMultiByObjectType(res, GetActorLocation(), FQuat::Identity, FCollisionObjectQueryParams::AllDynamicObjects, FCollisionShape::MakeSphere(300)))
+		{
+			for (auto a : res)
+			{
+				if (a.Actor.IsValid() && Cast<AProp>(a.Actor.Get()))
+				{
+					if (Cast<AProp>(a.Actor.Get())->ExplosionDamage < -1)
+					{
+						Say(TEXT("see_first_oil"));
+						SDF_SawFirstOil = true;
 					}
 				}
 			}

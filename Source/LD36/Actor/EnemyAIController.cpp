@@ -59,7 +59,23 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 						SetControlRotation(rot);
 						StopMovementTimer = 2;
 					}
+
+					if (auto pcp = Cast<ARobot>(pc))
+					{
+						if (!pcp->SDF_SawMissile && pwn->HasMissile)
+						{
+							pcp->Say(TEXT("see_missile"));
+							pcp->SDF_SawMissile = true;
+						}
+						if (!pcp->SDF_SawMace && pwn->HasMace)
+						{
+							pcp->Say(TEXT("see_mace"));
+							pcp->SDF_SawMace = true;
+						}
+					}
 				}
+
+				
 			}
 		}
 
