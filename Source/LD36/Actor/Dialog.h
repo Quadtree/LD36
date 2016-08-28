@@ -11,7 +11,6 @@ class LD36_API ADialog : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ADialog();
 
 	// Called when the game starts or when spawned
@@ -22,4 +21,11 @@ public:
 
 	FText GetText();
 	
+	void SetKey(FName key);
+
+	UPROPERTY()
+	class UDataTable* StringTable;
+
+private:
+	FName Key;
 };
