@@ -95,7 +95,7 @@ void ARobot::Tick( float DeltaTime )
 
 	MissileCharge += DeltaTime;
 
-	if (MissileCharge >= 2 && TryFireMissile)
+	if (MissileCharge >= 2 && TryFireMissile && OnFeet)
 	{
 		for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "Missile"))
 		{
@@ -106,6 +106,27 @@ void ARobot::Tick( float DeltaTime )
 				if (MissileCharge < 2) break;
 			}
 			if (MissileCharge < 2) break;
+		}
+	}
+
+	if (Cast<APlayerController>(GetController()))
+	{
+		TArray<FOverlapResult> res;
+		if (GetWorld()->OverlapMultiByObjectType(res, GetActorLocation(), FQuat::Identity, FCollisionObjectQueryParams::AllDynamicObjects, FCollisionShape::MakeSphere(100)))
+		{
+			for (auto a : res)
+			{
+				if (a.Actor.Get() == this) continue;
+
+				if (auto rbt = Cast<ARobot>(a.Actor.Get()))
+				{
+					if (rbt->Health <= 0)
+					{
+						if (rbt->HasMissile && !HasMissile) { rbt->HasMissile = false; HasMissile = true; }
+						if (rbt->HasMace && !HasMace) { rbt->HasMace = false; HasMace = true; }
+					}
+				}
+			}
 		}
 	}
 }
@@ -120,6 +141,7 @@ void ARobot::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 
 	InputComponent->BindAxis("Punch", this, &ARobot::SetTryPunch);
 	InputComponent->BindAxis("Kick", this, &ARobot::SetTryKick);
+	InputComponent->BindAxis("LaunchMissile", this, &ARobot::SetTryFireMissile);
 }
 
 float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
