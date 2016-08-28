@@ -364,6 +364,18 @@ void ARobot::UpdateStandingStatus()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Explosion, GetActorLocation() + FVector(0,0,50));
+
+		for (auto con : GetMesh()->Constraints)
+		{
+			con->SetLinearXLimit(ELinearConstraintMotion::LCM_Free, 10000);
+			con->SetLinearYLimit(ELinearConstraintMotion::LCM_Free, 10000);
+			con->SetLinearZLimit(ELinearConstraintMotion::LCM_Free, 10000);
+
+			con->SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Free, 10000);
+			con->SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Free, 10000);
+			con->SetAngularTwistLimit(EAngularConstraintMotion::ACM_Free, 10000);
+		}
+
 		Intact = false;
 	}
 }
