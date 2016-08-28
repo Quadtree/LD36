@@ -56,6 +56,11 @@ void AGenerator::BeginPlay()
 
 	TryPlaceRoom(GridSize / 2 - 2, GridSize / 2 - 2, GridSize / 2 + 2, GridSize / 2 + 2, nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, 2);
 
+	int32 pStartRoomX = 3 + FMath::RandRange(0, 1) * (GridSize - 6);
+	int32 pStartRoomY = 3 + FMath::RandRange(0, 1) * (GridSize - 6);
+
+	TryPlaceRoom(pStartRoomX - 3, pStartRoomY - 3, pStartRoomX + 3, pStartRoomY + 3, nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, 1);
+
 	while (totalTilesPlaced < totalTilesNeeded / 10)
 	{
 		int32 centerX = FMath::RandRange(0, gridSizeX - 1);
@@ -76,8 +81,6 @@ void AGenerator::BeginPlay()
 		}
 	}
 
-	bool startingRoomPlaced = false;
-
 	while (totalTilesPlaced < totalTilesNeeded)
 	{
 		int32 centerX = FMath::RandRange(0, gridSizeX - 1);
@@ -85,18 +88,9 @@ void AGenerator::BeginPlay()
 
 		int32 roomType = -1;
 
-		if (!startingRoomPlaced)
-		{
-			roomType = 1;
-		}
-		else
-		{
-			roomType = FMath::RandRange(3, RoomTypes.Num() - 1);
-		}
+		roomType = FMath::RandRange(3, RoomTypes.Num() - 1);
 
 		TryPlaceRoom(centerX - FMath::RandRange(0, 7), centerY - FMath::RandRange(0, 7), centerX + FMath::RandRange(0, 7), centerY + FMath::RandRange(0, 7), nextRoomId, totalTilesPlaced, gridSizeX, gridSizeY, roomIds, roomTypeMapping, roomType);
-
-		if (roomTypeMapping[roomTypeMapping.Num() - 1] == 1) startingRoomPlaced = true;
 
 		if (++maxItr > 100000) {
 			UE_LOG(LogTemp, Warning, TEXT("Too many iterations! Abort!"));
