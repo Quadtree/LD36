@@ -30,7 +30,7 @@ void ARobot::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if (OnFeet && ManualMovement.Size() > 0.1f)
+	if (OnFeet && ManualMovement.Size() > 0.1f && !TryKick)
 	{
 		float facing = FMath::Atan2(ManualMovement.Y, ManualMovement.X);
 		//UE_LOG(LogTemp, Display, TEXT("facing=%s"), *FString::SanitizeFloat(facing));
@@ -68,6 +68,10 @@ void ARobot::Tick( float DeltaTime )
 
 	KickLockoutTimer -= DeltaTime;
 	PunchLockoutTimer -= DeltaTime;
+
+	GetMovementComponent()->SetActive(OnFeet);
+
+	if (TryKick) GetMovementComponent()->SetActive(false);
 
 	if (Health <= 0) StunTime = 999999;
 }
