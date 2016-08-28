@@ -3,6 +3,7 @@
 #include "LD36.h"
 #include "Generator.h"
 #include "Actor/RobotRecycler.h"
+#include "Robot.h"
 #include "Actor/Prop.h"
 
 // Sets default values
@@ -346,6 +347,22 @@ void AGenerator::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	TArray<FOverlapResult> res;
+	FVector tilePos = GetActorLocation();
+
+	if (GetWorld()->OverlapMultiByObjectType(res, tilePos, FQuat::Identity, FCollisionObjectQueryParams::AllDynamicObjects, FCollisionShape::MakeBox(FVector(200, 200, 200))))
+	{
+		for (auto a : res)
+		{
+			if (auto rbt = Cast<ARobot>(a.Actor.Get()))
+			{
+				if (auto pc = Cast<APlayerController>(rbt->GetController()))
+				{
+					UE_LOG(LogTemp, Display, TEXT("PC has entered main computer room"));
+				}
+			}
+		}
+	}
 }
 
 void AGenerator::TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nextRoomId, int32& totalTilesPlaced, const int32& gridSizeX, const int32& gridSizeY, TArray<TArray<int32>>& roomIds, TArray<int32>& roomTypeMappings, int32 roomType)
