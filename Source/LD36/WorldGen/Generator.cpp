@@ -353,6 +353,15 @@ void AGenerator::BeginPlay()
 		}
 		
 	}
+
+	for (auto a : FloorTileComponents)
+	{
+		// force bounds re-evaluation. bug workaround
+		a->SetRelativeScale3D(FVector(0.9999f, 0.9999f, 0.9999f));
+		a->SetRelativeScale3D(FVector(1,1,1));
+	}
+
+	GetWorld()->GetNavigationSystem()->ReleaseInitialBuildingLock();
 }
 
 // Called every frame
