@@ -43,7 +43,7 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 			FCollisionQueryParams params;
 			params.AddIgnoredActor(GetPawn());
 			params.AddIgnoredActor(pc);
-			if (GetPawn()->GetWorld()->LineTraceTestByChannel(GetPawn()->GetActorLocation() + FVector(0, 0, 200), FVector(0, 0, 0), ECollisionChannel::ECC_Visibility, params))
+			if (!GetPawn()->GetWorld()->LineTraceTestByObjectType(GetPawn()->GetActorLocation() + FVector(0, 0, 50), pc->GetActorLocation() + FVector(0,0,50), FCollisionObjectQueryParams::AllObjects, params))
 			{
 				Aggroed = true;
 				UE_LOG(LogTemp, Display, TEXT("%s Aggroed"), *GetName());
@@ -72,7 +72,8 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 
 		if (auto pwn = Cast<ARobot>(GetPawn()))
 		{
-			pwn->TryPunch = true;
+			pwn->TryPunch = false;
+			if (FVector::DistSquared(pwn->GetActorLocation(), pc->GetActorLocation()) < FMath::Square(200)) pwn->TryPunch = true;
 		}
 	}
 }
