@@ -4,6 +4,7 @@
 #include "Robot.h"
 #include "DamageType/PhysicalDamage.h"
 #include "DamageType/StunDamage.h"
+#include "Actor/Prop.h"
 
 // Sets default values
 ARobot::ARobot()
@@ -165,11 +166,11 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 		{
 			if (a.Actor.Get() == this) continue;
 
-			if (!Cast<ARobot>(a.Actor.Get())) continue;
+			if (!Cast<ARobot>(a.Actor.Get()) && !Cast<AProp>(a.Actor.Get())) continue;
 
 			if (a.Actor.Get() && a.Component.Get())
 			{
-				if (!Cast<USkinnedMeshComponent>(a.Component.Get())) continue;
+				if (!Cast<USkinnedMeshComponent>(a.Component.Get()) && !Cast<UStaticMeshComponent>(a.Component.Get())) continue;
 
 				if (!compsHit.Contains(a.Actor)) compsHit.Add(a.Actor, TArray<TWeakObjectPtr<UPrimitiveComponent>>());
 				
@@ -202,11 +203,17 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 				damageEvent.Params.OuterRadius = 100;
 				damageEvent.Params.MinimumDamage = 5;
 
-				damageEvent.DamageTypeClass = UPhysicalDamage::StaticClass();
-				a.Key->TakeDamage(damage, damageEvent, nullptr, nullptr);
+				if (a.Key.IsValid())
+				{
+					damageEvent.DamageTypeClass = UPhysicalDamage::StaticClass();
+					a.Key->TakeDamage(damage, damageEvent, nullptr, nullptr);
+				}
 
-				damageEvent.DamageTypeClass = UStunDamage::StaticClass();
-				a.Key->TakeDamage(stunDamage, damageEvent, nullptr, nullptr);
+				if (a.Key.IsValid())
+				{
+					damageEvent.DamageTypeClass = UStunDamage::StaticClass();
+					a.Key->TakeDamage(stunDamage, damageEvent, nullptr, nullptr);
+				}
 			}
 
 			lockoutTimer = 0.5f;
