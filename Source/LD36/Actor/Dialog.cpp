@@ -43,6 +43,23 @@ void ADialog::Tick( float DeltaTime )
 
 FText ADialog::GetText()
 {
+	TArray<USceneComponent*> comps;
+	RootComponent->GetAttachParent()->GetChildrenComponents(false, comps);
+
+	for (auto c : comps)
+	{
+		if (Cast<ADialog>(c->GetOwner()))
+		{
+			if (c->GetOwner() != this)
+			{
+				StartDelay = FMath::Max(StartDelay, 0.5f);
+				return FText::FromString(TEXT(""));
+			}
+			else
+				break; // we're the first one
+		}
+	}
+
 	if (StartDelay > 0)
 	{
 		return FText::FromString(TEXT(""));
