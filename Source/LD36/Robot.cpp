@@ -93,12 +93,18 @@ float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, A
 
 		UE_LOG(LogTemp, Display, TEXT("distanceToCore=%s"), *FString::SanitizeFloat(distanceToCore));
 
-		if (distanceToCore > 45) DamageAmount /= 4;
+		if (distanceToCore > 45)
+		{
+			if (DamageEvent.DamageTypeClass == UStunDamage::StaticClass())
+				DamageAmount /= 32;
+			else
+				DamageAmount /= 4;
+		}
 	}
 
 	if (DamageEvent.DamageTypeClass == UStunDamage::StaticClass())
 	{
-		StunTime += DamageAmount * FMath::FRandRange(1.f / 160.f, 3.f / 160.f);
+		StunTime += DamageAmount * FMath::FRandRange(1.f / 20.f, 3.f / 20.f);
 	}
 	else
 	{
@@ -138,7 +144,7 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 
 	TArray<FOverlapResult> res;
 
-	const float DAMAGE_AREA_RADIUS = 7;
+	const float DAMAGE_AREA_RADIUS = 15;
 
 	DrawDebugSphere(GetWorld(), attackLocation, DAMAGE_AREA_RADIUS, 5, FColor::Red);
 
