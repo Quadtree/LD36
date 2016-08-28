@@ -10,13 +10,16 @@ void ADialogHUD::DrawHUD()
 
 	for (TActorIterator<ADialog> i(GetWorld()); i; ++i)
 	{
-		FVector pos = Project(i->GetActorLocation());
-
-		if (pos.Z > 0 && pos.X >= -200 && pos.Y >= -200 && pos.X <= Canvas->ClipX + 200 && pos.Y <= Canvas->ClipY + 200)
+		if (!i->GetText().IsEmpty())
 		{
-			FCanvasTextItem txt(FVector2D(pos.X, pos.Y), i->GetText(), DialogFont, FColor::White);
-			txt.bCentreX = true;
-			Canvas->DrawItem(txt);
+			FVector pos = Project(i->GetActorLocation());
+
+			if (pos.Z > 0 && pos.X >= -200 && pos.Y >= -200 && pos.X <= Canvas->ClipX + 200 && pos.Y <= Canvas->ClipY + 200)
+			{
+				FCanvasTextItem txt(FVector2D(pos.X, pos.Y), i->GetText(), DialogFont, FColor::White);
+				txt.bCentreX = true;
+				Canvas->DrawItem(txt);
+			}
 		}
 	}
 }

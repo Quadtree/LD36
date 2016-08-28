@@ -8,11 +8,9 @@
 UCLASS()
 class LD36_API ADialog : public AActor
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 	
 public:	
-	ADialog();
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
@@ -21,7 +19,17 @@ public:
 
 	FText GetText();
 	
+	UFUNCTION(BlueprintCallable, Category = Dialog)
 	void SetKey(FName key);
+
+	UPROPERTY(BlueprintReadWrite, Category = Dialog)
+	float StartDelay;
+
+	UPROPERTY(BlueprintReadWrite, Category = Dialog)
+	float Duration;
+
+	UPROPERTY(VisibleAnywhere, Category = Dialog)
+	class USceneComponent* SceneComponent;
 
 	UPROPERTY()
 	class UDataTable* StringTable;
