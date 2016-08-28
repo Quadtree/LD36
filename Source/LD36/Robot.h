@@ -57,6 +57,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed)
 	float ActionSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon)
+	bool HasMissile;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon)
+	bool HasMace;
 	
 private:
 	bool ManualMovementMode;

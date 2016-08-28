@@ -76,6 +76,22 @@ void ARobot::Tick( float DeltaTime )
 	if (TryKick) GetMovementComponent()->SetActive(false);
 
 	if (Health <= 0) StunTime = 999999;
+
+	for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "Missile"))
+	{
+		if (auto prim = Cast<UPrimitiveComponent>(comp))
+		{
+			prim->SetVisibility(HasMissile);
+		}
+	}
+
+	for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "Mace"))
+	{
+		if (auto prim = Cast<UPrimitiveComponent>(comp))
+		{
+			prim->SetVisibility(HasMace);
+		}
+	}
 }
 
 // Called to bind functionality to input
