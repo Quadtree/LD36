@@ -5,7 +5,6 @@
 #include "DamageType/PhysicalDamage.h"
 #include "DamageType/StunDamage.h"
 
-
 // Sets default values
 ARobot::ARobot()
 {
@@ -87,6 +86,16 @@ void ARobot::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 
 float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
 {
+	if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID) && (DamageEvent.DamageTypeClass == UStunDamage::StaticClass() || DamageEvent.DamageTypeClass == UPhysicalDamage::StaticClass()))
+	{
+		FRadialDamageEvent& rde = (FRadialDamageEvent&)DamageEvent;
+		float distanceToCore = FMath::Sqrt(FVector::DistSquaredXY(rde.Origin, GetActorLocation()));
+
+		UE_LOG(LogTemp, Display, TEXT("distanceToCore=%s"), *FString::SanitizeFloat(distanceToCore));
+
+		if (distanceToCore > 45) DamageAmount /= 4;
+	}
+
 	if (DamageEvent.DamageTypeClass == UStunDamage::StaticClass())
 	{
 		StunTime += DamageAmount * FMath::FRandRange(1.f / 160.f, 3.f / 160.f);
@@ -167,7 +176,7 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 
 				damageEvent.ComponentHits.Add(hitRes);
 			}
-			damageEvent.Origin = attackLocation + FVector(0, 0, -40);
+			damageEvent.Origin = attackLocation;
 			damageEvent.Params.BaseDamage = 20;
 			damageEvent.Params.DamageFalloff = 1;
 			damageEvent.Params.InnerRadius = 50;
