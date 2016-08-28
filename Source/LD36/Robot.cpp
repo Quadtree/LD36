@@ -191,6 +191,7 @@ float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, A
 	}
 	else
 	{
+		UE_LOG(LogTemp, Display, TEXT("%s took %s damage"), *GetName(), *FString::SanitizeFloat(DamageAmount));
 		Health = FMath::Min(Health - DamageAmount, MaxHealth);
 	}
 
@@ -248,7 +249,7 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 
 	const float DAMAGE_AREA_RADIUS = 15;
 
-	DrawDebugSphere(GetWorld(), attackLocation, DAMAGE_AREA_RADIUS, 5, FColor::Red);
+	//DrawDebugSphere(GetWorld(), attackLocation, DAMAGE_AREA_RADIUS, 5, FColor::Red);
 
 	if (GetWorld()->OverlapMultiByObjectType(res, attackLocation, FQuat::Identity, FCollisionObjectQueryParams::AllObjects, FCollisionShape::MakeSphere(DAMAGE_AREA_RADIUS)))
 	{
