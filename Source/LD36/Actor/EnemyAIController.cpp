@@ -28,6 +28,14 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 	NextScanCharge += DeltaSeconds;
 	StopMovementTimer -= DeltaSeconds;
 
+	if (auto pwn2 = Cast<ARobot>(GetPawn()))
+	{
+		if (pwn2->HasMissile)
+		{
+			Aggroed = true;
+		}
+	}
+
 	if (NextScanCharge >= 1)
 	{
 		if (pc)

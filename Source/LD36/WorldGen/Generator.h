@@ -44,10 +44,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	TSubclassOf<class ARobot> PlayerRobotType;
 
+	UPROPERTY(EditAnywhere, Category = WorldGen)
+	TArray<TSubclassOf<class ARobot>> NormalEnemySpawns;
+
+	UPROPERTY(EditAnywhere, Category = WorldGen)
+	TArray<TSubclassOf<class ARobot>> EliteEnemySpawns;
+
 	// room types. assume 0 is corridor, 1 is starting room, 2 is central computer room
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	TArray<FRoomType> RoomTypes;
 
 private:
 	void TryPlaceRoom(int32 x1, int32 y1, int32 x2, int32 y2, int32& nextRoomId, int32& totalTilesPlaced, const int32& gridSizeX, const int32& gridSizeY, TArray<TArray<int32>>& roomIds, TArray<int32>& roomTypeMappings, int32 roomType);
+
+	bool HasEnteredComputerRoom;
 };

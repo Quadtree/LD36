@@ -334,7 +334,12 @@ void AGenerator::BeginPlay()
 							FVector tilePos = GetActorLocation() + FVector(TileSize * (x - GridSize / 2), TileSize * (y - GridSize / 2), 200);
 							FActorSpawnParameters params;
 							params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-							AActor* na = GetWorld()->SpawnActor<AActor>(RoomTypes[roomTypeMapping[roomId]].PropTypes[FMath::RandRange(0, RoomTypes[roomTypeMapping[roomId]].PropTypes.Num() - 1)], tilePos, FRotator::ZeroRotator, params);
+							AActor* na = nullptr;
+
+							if (FMath::RandRange(0, 5) == 0)
+								na = GetWorld()->SpawnActor<ARobot>(NormalEnemySpawns[FMath::RandRange(0, EliteEnemySpawns.Num() - 1)], tilePos, FRotator::ZeroRotator);
+							else
+								na = GetWorld()->SpawnActor<AActor>(RoomTypes[roomTypeMapping[roomId]].PropTypes[FMath::RandRange(0, RoomTypes[roomTypeMapping[roomId]].PropTypes.Num() - 1)], tilePos, FRotator::ZeroRotator, params);
 
 							if (na) propsPlaced++;
 						}
@@ -364,7 +369,14 @@ void AGenerator::Tick( float DeltaTime )
 			{
 				if (auto pc = Cast<APlayerController>(rbt->GetController()))
 				{
-					UE_LOG(LogTemp, Display, TEXT("PC has entered main computer room"));
+					if (!HasEnteredComputerRoom)
+					{
+						UE_LOG(LogTemp, Display, TEXT("PC has entered main computer room"));
+						HasEnteredComputerRoom = true;
+
+						FVector tilePos = GetActorLocation() + FVector(TileSize * (FMath::RandRange(0, GridSize - 1) - GridSize / 2), TileSize * (FMath::RandRange(0, GridSize - 1) - GridSize / 2), 200);
+						GetWorld()->SpawnActor<ARobot>(EliteEnemySpawns[FMath::RandRange(0, EliteEnemySpawns.Num() - 1)], tilePos, FRotator::ZeroRotator);
+					}
 				}
 			}
 		}
