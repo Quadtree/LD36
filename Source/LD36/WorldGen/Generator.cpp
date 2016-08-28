@@ -338,7 +338,7 @@ void AGenerator::BeginPlay()
 							AActor* na = nullptr;
 
 							if (FMath::RandRange(0, 5) == 0) {
-								na = GetWorld()->SpawnActor<ARobot>(NormalEnemySpawns[FMath::RandRange(0, EliteEnemySpawns.Num() - 1)], tilePos, FRotator::ZeroRotator);
+								na = GetWorld()->SpawnActor<ARobot>(NormalEnemySpawns[FMath::RandRange(0, NormalEnemySpawns.Num() - 1)], tilePos, FRotator::ZeroRotator);
 								if (na) Cast<ARobot>(na)->SpawnDefaultController();
 							}
 							else

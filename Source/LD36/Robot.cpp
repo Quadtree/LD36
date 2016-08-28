@@ -202,6 +202,8 @@ float ARobot::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, A
 
 void ARobot::Say(FName key, float delay)
 {
+	if (Health <= 0) return;
+
 	auto dialog = GetWorld()->SpawnActor<ADialog>();
 	dialog->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 
