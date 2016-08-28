@@ -38,28 +38,13 @@ void ADialog::Tick( float DeltaTime )
 		if (Duration <= 0) Destroy();
 	}
 
+	if (!IsPrimary()) StartDelay = FMath::Max(StartDelay, 0.5f);
+
 	//DrawDebugString(GetWorld(), GetActorLocation(), GetText().ToString(), nullptr, FColor::Green);
 }
 
 FText ADialog::GetText()
 {
-	TArray<USceneComponent*> comps;
-	RootComponent->GetAttachParent()->GetChildrenComponents(false, comps);
-
-	for (auto c : comps)
-	{
-		if (Cast<ADialog>(c->GetOwner()))
-		{
-			if (c->GetOwner() != this)
-			{
-				StartDelay = FMath::Max(StartDelay, 0.5f);
-				return FText::FromString(TEXT(""));
-			}
-			else
-				break; // we're the first one
-		}
-	}
-
 	if (StartDelay > 0)
 	{
 		return FText::FromString(TEXT(""));
@@ -83,5 +68,24 @@ FText ADialog::GetText()
 void ADialog::SetKey(FName key)
 {
 	this->Key = key;
+}
+
+bool ADialog::IsPrimary()
+{
+	TArray<USceneComponent*> comps;
+	RootComponent->GetAttachParent()->GetChildrenComponents(false, comps);
+
+	for (auto c : comps)
+	{
+		if (c && c->IsValidLowLevel() && Cast<ADialog>(c->GetOwner()))
+		{
+			if (c->GetOwner() != this)
+				return false;
+			else
+				return true;
+		}
+	}
+
+	return true;
 }
 

@@ -34,6 +34,8 @@ public:
 	UPROPERTY()
 	class UDataTable* StringTable;
 
+	bool IsPrimary();
+
 private:
 	FName Key;
 };
