@@ -63,8 +63,8 @@ void ARobot::Tick( float DeltaTime )
 		if (TryPunch && PunchLockoutTimer <= 0) IsPunching = true;
 	}
 
-	if (IsKicking) MeleeAttack(FootBoneName, KickLockoutTimer, 20, 40, 15);
-	if (IsPunching) MeleeAttack(FistBoneName, PunchLockoutTimer, 30, 20, 40);
+	if (IsKicking) MeleeAttack(FootBoneName, KickLockoutTimer, 20, 40, 25);
+	if (IsPunching) MeleeAttack(FistBoneName, PunchLockoutTimer, 30, 20, 55);
 
 	KickLockoutTimer -= DeltaTime;
 	PunchLockoutTimer -= DeltaTime;
@@ -146,6 +146,8 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 {
 	FVector attackLocation = GetMesh()->GetBoneLocation(boneName);
 
+	float distanceFromCore = FMath::Sqrt(FVector::DistSquaredXY(attackLocation, GetActorLocation()));
+
 	TArray<FOverlapResult> res;
 
 	const float DAMAGE_AREA_RADIUS = 15;
@@ -175,29 +177,34 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 		
 		for (auto& a : compsHit)
 		{
-			FRadialDamageEvent damageEvent;
-			
-			for (auto& c : a.Value)
+			UE_LOG(LogTemp, Display, TEXT("distanceFromCore=%s"), *FString::SanitizeFloat(distanceFromCore));
+
+			if (distanceFromCore >= minCoreDistance)
 			{
-				FHitResult hitRes;
-				hitRes.Actor = a.Key;
-				hitRes.bBlockingHit = true;
-				hitRes.Component = c;
+				FRadialDamageEvent damageEvent;
 
-				damageEvent.ComponentHits.Add(hitRes);
+				for (auto& c : a.Value)
+				{
+					FHitResult hitRes;
+					hitRes.Actor = a.Key;
+					hitRes.bBlockingHit = true;
+					hitRes.Component = c;
+
+					damageEvent.ComponentHits.Add(hitRes);
+				}
+				damageEvent.Origin = attackLocation;
+				damageEvent.Params.BaseDamage = 20;
+				damageEvent.Params.DamageFalloff = 1;
+				damageEvent.Params.InnerRadius = 50;
+				damageEvent.Params.OuterRadius = 100;
+				damageEvent.Params.MinimumDamage = 5;
+
+				damageEvent.DamageTypeClass = UPhysicalDamage::StaticClass();
+				a.Key->TakeDamage(damage, damageEvent, nullptr, nullptr);
+
+				damageEvent.DamageTypeClass = UStunDamage::StaticClass();
+				a.Key->TakeDamage(stunDamage, damageEvent, nullptr, nullptr);
 			}
-			damageEvent.Origin = attackLocation;
-			damageEvent.Params.BaseDamage = 20;
-			damageEvent.Params.DamageFalloff = 1;
-			damageEvent.Params.InnerRadius = 50;
-			damageEvent.Params.OuterRadius = 100;
-			damageEvent.Params.MinimumDamage = 5;
-			
-			damageEvent.DamageTypeClass = UPhysicalDamage::StaticClass();
-			a.Key->TakeDamage(damage, damageEvent, nullptr, nullptr);
-
-			damageEvent.DamageTypeClass = UStunDamage::StaticClass();
-			a.Key->TakeDamage(stunDamage, damageEvent, nullptr, nullptr);
 
 			lockoutTimer = 0.5f;
 		}
