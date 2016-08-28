@@ -148,6 +148,8 @@ void ARobot::MeleeAttack(const FName& boneName, float& lockoutTimer, float damag
 
 	float distanceFromCore = FMath::Sqrt(FVector::DistSquaredXY(attackLocation, GetActorLocation()));
 
+	if (distanceFromCore < minCoreDistance) return;
+
 	TArray<FOverlapResult> res;
 
 	const float DAMAGE_AREA_RADIUS = 15;
