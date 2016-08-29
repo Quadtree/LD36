@@ -13,7 +13,8 @@ class LD36_API ALD36GameMode : public AGameMode
 {
 	GENERATED_BODY()
 	
-	
+public:
+	virtual void BeginPlay() override;
 	
 	
 };
