@@ -11,7 +11,7 @@ see_missile,"Ooh, a missile launcher! I bet I could use that to get out…"
 get_missile,Now I can use this missile with / or gamepad Y. Now to use it on the outer wall!
 see_mace,"Whoa, a mace! I need to grab that!"
 get_mace,Now this is more like it!
-contact,"Uh oh, they don't look too friendly. I can use comma and period, or the triggers to fight!"
+contact,"I can use comma and period, or the triggers to fight!"
 see_first_oil,"Oil barrels! If I smash those, I'll get some health back."
 win,At last I escaped! Victory!
 killbot0,Sending the TERM signal
