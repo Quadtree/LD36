@@ -8,13 +8,21 @@
 
 AProp::AProp()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void AProp::BeginPlay()
 {
 	Super::BeginPlay();
 	MaxHealth = Health;
+
+	for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "OnFire"))
+	{
+		if (auto c2 = Cast<UPrimitiveComponent>(comp))
+		{
+			c2->SetVisibility(false);
+		}
+	}
 }
 
 float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -31,6 +39,11 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 	if (DamageEvent.DamageTypeClass != UStunDamage::StaticClass())
 	{
 		Health -= FMath::Max(DamageAmount, 0.f);
+	}
+
+	if (Health / MaxHealth <= OnFirePct)
+	{
+		PrimaryActorTick.bCanEverTick = true;
 	}
 
 	if (Health / MaxHealth <= DetachPct)
