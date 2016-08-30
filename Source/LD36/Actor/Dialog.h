@@ -13,10 +13,9 @@ class LD36_API ADialog : public AActor
 public:	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
 	FText GetText();
 	
 	UFUNCTION(BlueprintCallable, Category = Dialog)
@@ -40,10 +39,17 @@ public:
 	UPROPERTY()
 	TArray<USoundBase*> Words;
 
-	bool IsPrimary();
-
 private:
+	UFUNCTION()
+	void Update();
+
 	FName Key;
 
 	TArray<FString> SpeakQueue;
+
+	bool IsPrimary;
+
+	FTimerHandle UpdateTimerHandle;
+
+	bool HasBeenSpedUp;
 };

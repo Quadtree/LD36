@@ -10,7 +10,7 @@
 ADialog::ADialog(const FObjectInitializer& oi)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	static ConstructorHelpers::FObjectFinder<UDataTable> dt(TEXT("/Game/Data/DialogTable"));
 	StringTable = dt.Object;
@@ -51,58 +51,19 @@ void ADialog::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	GetWorld()->GetTimerManager().SetTimer(UpdateTimerHandle, this, &ADialog::Update, 1, true, 0.1f);
 }
 
-// Called every frame
-void ADialog::Tick( float DeltaTime )
+void ADialog::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::Tick( DeltaTime );
+	Super::EndPlay(EndPlayReason);
 
-	bool isPrimary = IsPrimary();
-
-	if (isPrimary) StartDelay -= DeltaTime * 20;
-
-	if (StartDelay <= 0)
-	{
-		Duration -= DeltaTime;
-		if (Duration <= 0) Destroy();
-	}
-
-	if (!isPrimary)
-	{
-		StartDelay = FMath::Max(StartDelay, 0.5f);
-	}
-	else if (StartDelay <= 0)
-	{
-		if (!AudioComponent->IsPlaying() && SpeakQueue.Num() > 0)
-		{
-			UE_LOG(LogTemp, Display, TEXT("Attempting to play %s"), *SpeakQueue[0]);
-			for (auto sound : Words)
-			{
-				if (sound->GetName() == SpeakQueue[0])
-				{
-					AudioComponent->SetSound(sound);
-					AudioComponent->Play();
-					break;
-				}
-			}
-
-			SpeakQueue.RemoveAt(0);
-		}
-
-		if (SpeakQueue.Num() > 0 || AudioComponent->IsPlaying())
-			Duration = FMath::Max(Duration, 0.25f);
-		else
-			Duration = -1;
-	}
-
-
-	//DrawDebugString(GetWorld(), GetActorLocation(), GetText().ToString(), nullptr, FColor::Green);
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 FText ADialog::GetText()
 {
-	if (StartDelay > 0)
+	if (!IsPrimary)
 	{
 		return FText::FromString(TEXT(""));
 	}
@@ -141,32 +102,44 @@ void ADialog::SetKey(FName key)
 	}
 }
 
-bool ADialog::IsPrimary()
+void ADialog::Update()
 {
-	/*if (!RootComponent || !RootComponent->IsValidLowLevel()) return true;
-	if (!RootComponent->GetAttachParent() || RootComponent->GetAttachParent()->IsValidLowLevel()) return true;
+	const float DeltaTime = 1;
 
-	TArray<USceneComponent*> comps;
-	RootComponent->GetAttachParent()->GetChildrenComponents(false, comps);
-
-	for (auto c : comps)
-	{
-		if (c && c->IsValidLowLevel() && Cast<ADialog>(c->GetOwner()))
-		{
-			if (c->GetOwner() != this)
-				return false;
-			else
-				return true;
-		}
-	}
-
-	return true;*/
+	IsPrimary = true;
 
 	for (TActorIterator<ADialog> i(GetWorld()); i; ++i)
 	{
-		if (*i != this && i->AudioComponent->IsPlaying()) return false;
+		if (*i != this && (i->AudioComponent->IsPlaying() || i->IsPrimary || i->StartDelay < this->StartDelay)) {
+			IsPrimary = false;
+			return;
+		}
 	}
 
-	return true;
+	if (!AudioComponent->IsPlaying() && SpeakQueue.Num() > 0)
+	{
+		UE_LOG(LogTemp, Display, TEXT("%s Attempting to play %s"), *GetName(), *SpeakQueue[0]);
+		for (auto sound : Words)
+		{
+			if (sound->GetName() == SpeakQueue[0])
+			{
+				AudioComponent->SetSound(sound);
+				AudioComponent->Play();
+				break;
+			}
+		}
+
+		SpeakQueue.RemoveAt(0);
+	}
+
+	if (SpeakQueue.Num() == 0 && !AudioComponent->IsPlaying())
+		Destroy();
+
+	if (IsPrimary && !HasBeenSpedUp)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(UpdateTimerHandle);
+		GetWorld()->GetTimerManager().SetTimer(UpdateTimerHandle, this, &ADialog::Update, 0.1f, true, 0.1f);
+		HasBeenSpedUp = true;
+	}
 }
 
