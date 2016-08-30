@@ -239,7 +239,7 @@ void AGenerator::BeginPlay()
 
 				UMaterial* mat = RoomTypes[roomType].FloorMaterial;
 
-				if (!ismcMap.Contains(mat))
+				/*if (!ismcMap.Contains(mat))
 				{
 					auto ismc = NewObject<UInstancedStaticMeshComponent>(this);
 					ismc->SetStaticMesh(FloorTiles->StaticMesh);
@@ -251,7 +251,16 @@ void AGenerator::BeginPlay()
 					ismcMap.Add(mat, ismc);
 				}
 
-				ismcMap[mat]->AddInstance(FTransform(FRotator(0, 0, 0), tilePos, FVector(1, 1, 1) * (TileSize / 100)));
+				ismcMap[mat]->AddInstance(FTransform(FRotator(0, 0, 0), tilePos, FVector(1, 1, 1) * (TileSize / 100)));*/
+
+				UStaticMeshComponent *smc = NewObject<UStaticMeshComponent>(this);
+				smc->SetStaticMesh(FloorTiles->StaticMesh);
+				smc->SetMaterial(0, mat);
+				smc->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+				smc->SetWorldTransform(FTransform(FRotator(0, 0, 0), tilePos, FVector(1, 1, 1) * (TileSize / 100)));
+				smc->RegisterComponent();
+				smc->SetMobility(EComponentMobility::Stationary);
+				smc->SetCastShadow(false);
 			}
 
 			FActorSpawnParameters params;
