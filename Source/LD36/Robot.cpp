@@ -6,12 +6,13 @@
 #include "DamageType/StunDamage.h"
 #include "Actor/Prop.h"
 #include "Actor/Dialog.h"
+#include "RobotMovementComponent.h"
 
 // Sets default values
-ARobot::ARobot()
+ARobot::ARobot(const FObjectInitializer& oi) : Super(oi.SetDefaultSubobjectClass<URobotMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	ManualMovementMode = false;
 	OnFeet = true;

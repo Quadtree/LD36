@@ -16,10 +16,10 @@ public:
 	AEnemyAIController();
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	bool Aggroed;
 private:
 	float NextScanCharge;
 
 	float StopMovementTimer;
-	
-	bool Aggroed;
 };

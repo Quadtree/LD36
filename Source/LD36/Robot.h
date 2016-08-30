@@ -8,12 +8,9 @@
 UCLASS()
 class LD36_API ARobot : public ACharacter
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 
 public:
-	// Sets default values for this character's properties
-	ARobot();
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	

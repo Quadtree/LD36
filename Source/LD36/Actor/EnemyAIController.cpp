@@ -6,7 +6,7 @@
 
 AEnemyAIController::AEnemyAIController()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void AEnemyAIController::Tick(float DeltaSeconds)
