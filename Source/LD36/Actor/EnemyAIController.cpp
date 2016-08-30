@@ -6,7 +6,7 @@
 
 AEnemyAIController::AEnemyAIController()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void AEnemyAIController::Tick(float DeltaSeconds)
@@ -34,6 +34,26 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 		{
 			Aggroed = true;
 		}
+
+		//pwn2->GetCapsuleComponent()->SetMobility(EComponentMobility::Static);
+
+		//pwn2->GetMovementComponent()->SetActive(Aggroed && pwn2->OnFeet);
+		//pwn2->GetMovementComponent()->SetComponentTickEnabled(false);
+		//pwn2->GetMovementComponent()->bUpdateOnlyIfRendered = !Aggroed;
+
+		//pwn2->GetCapsuleComponent()->SetMobility(Aggroed ? EComponentMobility::Movable : EComponentMobility::Static);
+
+		/*if (pwn2->GetMovementComponent()->IsRegistered() != Aggroed)
+		{
+			if (!Aggroed)
+			{
+				pwn2->GetMovementComponent()->UnregisterComponent();
+			}
+			else
+			{
+				pwn2->GetMovementComponent()->RegisterComponent();
+			}
+		}*/
 	}
 
 	if (NextScanCharge >= 1)

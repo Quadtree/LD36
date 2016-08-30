@@ -11,7 +11,7 @@
 AGenerator::AGenerator(const FObjectInitializer& oi)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	FloorTiles = oi.CreateDefaultSubobject<UInstancedStaticMeshComponent>(this, "FloorTiles");
 	RootComponent = FloorTiles;
