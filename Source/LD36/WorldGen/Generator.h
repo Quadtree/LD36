@@ -14,9 +14,8 @@ class LD36_API AGenerator : public AActor
 public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+
+	virtual void AGenerator::EndPlay(const EEndPlayReason::Type reason) override;
 
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	float TileSize;
@@ -60,4 +59,9 @@ private:
 	bool HasEnteredComputerRoom;
 
 	FTimerHandle InitialBuildTimer;
+
+	UFUNCTION()
+	void CheckForPlayer();
+
+	FTimerHandle TimerHandle;
 };
