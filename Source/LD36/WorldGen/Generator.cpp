@@ -246,6 +246,7 @@ void AGenerator::BeginPlay()
 					ismc->SetMaterial(0, mat);
 					ismc->AttachTo(RootComponent);
 					ismc->RegisterComponent();
+					ismc->SetVisibility(false);
 					FloorTileComponents.Add(ismc);
 					ismcMap.Add(mat, ismc);
 				}
