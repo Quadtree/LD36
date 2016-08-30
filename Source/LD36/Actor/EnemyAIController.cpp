@@ -28,7 +28,7 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 		}
 	}
 
-	if (NextScanCharge >= (Aggroed ? 0.15f : 1.0f))
+	if (NextScanCharge >= (Aggroed ? 0.33f : 1.0f))
 	{
 		APawn* pc = nullptr;
 

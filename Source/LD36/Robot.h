@@ -13,6 +13,8 @@ class LD36_API ARobot : public ACharacter
 public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void EndPlay(const EEndPlayReason::Type reason) override;
 	
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
@@ -112,4 +114,9 @@ private:
 	void MeleeAttack(const FName& boneName, float& lockoutTimer, float damage, float stunDamage, float minCoreDistance);
 
 	void UpdateStandingStatus();
+
+	UFUNCTION()
+	void HalfSecondUpdate();
+
+	FTimerHandle HalfSecondUpdateTimerHandle;
 };

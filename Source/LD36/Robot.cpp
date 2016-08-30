@@ -28,6 +28,16 @@ void ARobot::BeginPlay()
 	DefaultMeshRelativeTransform = GetMesh()->GetRelativeTransform();
 	FallBlend = 0;
 	Intact = true;
+
+	GetWorld()->GetTimerManager().SetTimer(HalfSecondUpdateTimerHandle, this, &ARobot::HalfSecondUpdate, 0.5f, true, 0.5f);
+	HalfSecondUpdate();
+}
+
+void ARobot::EndPlay(const EEndPlayReason::Type reason)
+{
+	Super::EndPlay(reason);
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 // Called every frame
@@ -80,22 +90,6 @@ void ARobot::Tick( float DeltaTime )
 
 	if (Health <= 0) StunTime = 999999;
 
-	for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "Missile"))
-	{
-		if (auto prim = Cast<UPrimitiveComponent>(comp))
-		{
-			prim->SetVisibility(HasMissile);
-		}
-	}
-
-	for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "Mace"))
-	{
-		if (auto prim = Cast<UPrimitiveComponent>(comp))
-		{
-			prim->SetVisibility(HasMace);
-		}
-	}
-
 	MissileCharge += DeltaTime;
 
 	if (MissileCharge >= 2 && TryFireMissile && OnFeet)
@@ -114,6 +108,25 @@ void ARobot::Tick( float DeltaTime )
 		}
 	}
 
+	for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "Missile"))
+	{
+		if (auto prim = Cast<UPrimitiveComponent>(comp))
+		{
+			prim->SetVisibility(HasMissile);
+		}
+	}
+
+	for (auto comp : GetComponentsByTag(UPrimitiveComponent::StaticClass(), "Mace"))
+	{
+		if (auto prim = Cast<UPrimitiveComponent>(comp))
+		{
+			prim->SetVisibility(HasMace);
+		}
+	}
+}
+
+void ARobot::HalfSecondUpdate()
+{
 	if (Cast<APlayerController>(GetController()))
 	{
 		TArray<FOverlapResult> res;
