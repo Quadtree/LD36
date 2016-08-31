@@ -451,12 +451,12 @@ void AGenerator::CheckForPlayer()
 								dialog->StartDelay = 4 * i;
 							}
 						}
+
+						GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 					}
 				}
 			}
 		}
-
-		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 	}
 }
 

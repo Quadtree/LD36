@@ -45,21 +45,26 @@ void ARobot::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if (OnFeet && ManualMovement.Size() > 0.1f && !TryKick)
+	if (Target)
+	{
+		FRotator dest;
+
+		if (Cast<AProp>(Target))
+			dest = (Target->FindComponentByClass<UStaticMeshComponent>()->GetComponentLocation() - GetActorLocation()).ToOrientationRotator();
+		else
+			dest = (Target->GetActorLocation() - GetActorLocation()).ToOrientationRotator();
+
+		dest.Pitch = 0;
+		dest.Roll = 0;
+		FRotator newRot = FMath::RInterpConstantTo(GetActorRotation(), dest, DeltaTime, 1500);
+		GetController()->SetControlRotation(newRot);
+	}
+	else if (OnFeet && ManualMovement.Size() > 0.1f && !TryKick)
 	{
 		float facing = FMath::Atan2(ManualMovement.Y, ManualMovement.X);
-		//UE_LOG(LogTemp, Display, TEXT("facing=%s"), *FString::SanitizeFloat(facing));
-
-		/*if (auto cam = FindComponentByClass<UCameraComponent>())
-		{
-			UE_LOG(LogTemp, Display, TEXT("facing=%s"), *FString::SanitizeFloat(cam->GetComponentRotation().Yaw));
-			facing += cam->GetComponentRotation().Yaw;
-		}*/
 
 		FRotator dest = FRotator(0, FMath::RadiansToDegrees(facing) - 45, 0);
 		FRotator newRot = FMath::RInterpConstantTo(GetActorRotation(), dest, DeltaTime, 1500);
-		//UE_LOG(LogTemp, Display, TEXT("oldRot=%s newRot=%s"), *GetActorRotation().ToString(), *newRot.ToString());
-
 		GetController()->SetControlRotation(newRot);
 
 		AddMovementInput(GetActorRotation().RotateVector(FVector::ForwardVector), ManualMovement.Size());
@@ -123,10 +128,15 @@ void ARobot::Tick( float DeltaTime )
 			prim->SetVisibility(HasMace);
 		}
 	}
+
+	if ((IsKicking || IsPunching) && !Target) AcquireTarget();
+	if (!(IsKicking || IsPunching) && Target) Target = nullptr;
 }
 
 void ARobot::HalfSecondUpdate()
 {
+	if (IsKicking || IsPunching) AcquireTarget();
+
 	if (Cast<APlayerController>(GetController()))
 	{
 		TArray<FOverlapResult> res;
@@ -164,6 +174,59 @@ void ARobot::HalfSecondUpdate()
 					}
 				}
 			}
+		}
+	}
+}
+
+void ARobot::AcquireTarget()
+{
+	TArray<FOverlapResult> res;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	if (GetWorld()->OverlapMultiByObjectType(res, GetActorLocation(), FQuat::Identity, FCollisionObjectQueryParams::AllDynamicObjects, FCollisionShape::MakeSphere(300), params))
+	{
+		float bestAngleFromFront = 100000;
+		Target = nullptr;
+
+		for (auto a : res)
+		{
+			auto prop = Cast<AProp>(a.Actor.Get());
+			auto robot = Cast<ARobot>(a.Actor.Get());
+
+			if (a.Actor.IsValid() && ((robot && robot->Health > 0) || prop))
+			{
+				FVector trgCenter;
+
+				if (prop)
+					trgCenter = prop->FindComponentByClass<UStaticMeshComponent>()->GetComponentLocation();
+				else
+					trgCenter = robot->GetActorLocation();
+
+				FRotator ang = (a.Actor->GetActorLocation() - GetActorLocation()).ToOrientationRotator();
+
+				float offsetAng = (ang - GetActorRotation()).Yaw + (prop ? 10000 : 0);
+
+				//DrawDebugLine(GetWorld(), GetActorLocation(), a.Actor->GetActorLocation(), FColor::Purple, true, 0.5f);
+				//DrawDebugString(GetWorld(), (GetActorLocation() + a.Actor->GetActorLocation())/2, *FString::FromInt(offsetAng), nullptr, FColor::Purple, true, 0.5f);
+
+				if (FMath::Abs(offsetAng) < bestAngleFromFront)
+				{
+					FCollisionQueryParams p2;
+					p2.AddIgnoredActor(this);
+					p2.AddIgnoredActor(a.Actor.Get());
+
+					if (!GetWorld()->LineTraceTestByChannel(GetActorLocation() + FVector(0, 0, 50), a.Actor->GetActorLocation() + FVector(0, 0, 50), ECollisionChannel::ECC_Visibility, p2))
+					{
+						bestAngleFromFront = FMath::Abs(offsetAng);
+						Target = a.Actor.Get();
+					}
+				}
+			}
+		}
+
+		if (Target)
+		{
+			//DrawDebugBox(GetWorld(), Target->GetActorLocation(), FVector(30, 30, 30), FColor::Purple, true, 0.5f);
 		}
 	}
 }

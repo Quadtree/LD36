@@ -119,4 +119,8 @@ private:
 	void HalfSecondUpdate();
 
 	FTimerHandle HalfSecondUpdateTimerHandle;
+
+	AActor* Target;
+
+	void AcquireTarget();
 };
