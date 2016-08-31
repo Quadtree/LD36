@@ -7,6 +7,7 @@
 #include "Actor/Prop.h"
 #include "Actor/Dialog.h"
 #include "RobotMovementComponent.h"
+#include "Actor/BaseWall.h"
 
 // Sets default values
 ARobot::ARobot(const FObjectInitializer& oi) : Super(oi.SetDefaultSubobjectClass<URobotMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -45,7 +46,17 @@ void ARobot::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if (Target)
+	if (OnFeet && ManualMovement.Size() > 0.1f && !TryKick)
+	{
+		float facing = FMath::Atan2(ManualMovement.Y, ManualMovement.X);
+
+		FRotator dest = FRotator(0, FMath::RadiansToDegrees(facing) - 45, 0);
+		FRotator newRot = FMath::RInterpConstantTo(GetActorRotation(), dest, DeltaTime, 1500);
+		GetController()->SetControlRotation(newRot);
+
+		AddMovementInput(GetActorRotation().RotateVector(FVector::ForwardVector), ManualMovement.Size());
+	}
+	else if(Target)
 	{
 		FRotator dest;
 
@@ -58,16 +69,6 @@ void ARobot::Tick( float DeltaTime )
 		dest.Roll = 0;
 		FRotator newRot = FMath::RInterpConstantTo(GetActorRotation(), dest, DeltaTime, 1500);
 		GetController()->SetControlRotation(newRot);
-	}
-	else if (OnFeet && ManualMovement.Size() > 0.1f && !TryKick)
-	{
-		float facing = FMath::Atan2(ManualMovement.Y, ManualMovement.X);
-
-		FRotator dest = FRotator(0, FMath::RadiansToDegrees(facing) - 45, 0);
-		FRotator newRot = FMath::RInterpConstantTo(GetActorRotation(), dest, DeltaTime, 1500);
-		GetController()->SetControlRotation(newRot);
-
-		AddMovementInput(GetActorRotation().RotateVector(FVector::ForwardVector), ManualMovement.Size());
 	}
 
 	UpdateStandingStatus();
@@ -193,7 +194,7 @@ void ARobot::AcquireTarget()
 			auto prop = Cast<AProp>(a.Actor.Get());
 			auto robot = Cast<ARobot>(a.Actor.Get());
 
-			if (a.Actor.IsValid() && ((robot && robot->Health > 0) || prop))
+			if (a.Actor.IsValid() && ((robot && robot->Health > 0) || prop) && !Cast<ABaseWall>(a.Actor.Get()))
 			{
 				FVector trgCenter;
 
@@ -202,23 +203,28 @@ void ARobot::AcquireTarget()
 				else
 					trgCenter = robot->GetActorLocation();
 
-				FRotator ang = (a.Actor->GetActorLocation() - GetActorLocation()).ToOrientationRotator();
+				FVector delta = (trgCenter - GetActorLocation());
 
-				float offsetAng = (ang - GetActorRotation()).Yaw + (prop ? 10000 : 0);
+				FRotator ang = delta.ToOrientationRotator();
 
-				//DrawDebugLine(GetWorld(), GetActorLocation(), a.Actor->GetActorLocation(), FColor::Purple, true, 0.5f);
-				//DrawDebugString(GetWorld(), (GetActorLocation() + a.Actor->GetActorLocation())/2, *FString::FromInt(offsetAng), nullptr, FColor::Purple, true, 0.5f);
-
-				if (FMath::Abs(offsetAng) < bestAngleFromFront)
+				if (FMath::Abs((ang - GetActorRotation()).Yaw) < 100)
 				{
-					FCollisionQueryParams p2;
-					p2.AddIgnoredActor(this);
-					p2.AddIgnoredActor(a.Actor.Get());
+					float offsetAng = (ang - GetActorRotation()).Yaw + (prop ? 10000 : 0) + delta.Size2D() / 3;
 
-					if (!GetWorld()->LineTraceTestByChannel(GetActorLocation() + FVector(0, 0, 50), a.Actor->GetActorLocation() + FVector(0, 0, 50), ECollisionChannel::ECC_Visibility, p2))
+					//DrawDebugLine(GetWorld(), GetActorLocation(), a.Actor->GetActorLocation(), FColor::Purple, true, 0.5f);
+					//DrawDebugString(GetWorld(), (GetActorLocation() + a.Actor->GetActorLocation())/2, *FString::FromInt(offsetAng), nullptr, FColor::Purple, true, 0.5f);
+
+					if (FMath::Abs(offsetAng) < bestAngleFromFront)
 					{
-						bestAngleFromFront = FMath::Abs(offsetAng);
-						Target = a.Actor.Get();
+						FCollisionQueryParams p2;
+						p2.AddIgnoredActor(this);
+						p2.AddIgnoredActor(a.Actor.Get());
+
+						if (!GetWorld()->LineTraceTestByChannel(GetActorLocation() + FVector(0, 0, 50), trgCenter + FVector(0, 0, 50), ECollisionChannel::ECC_Visibility, p2))
+						{
+							bestAngleFromFront = FMath::Abs(offsetAng);
+							Target = a.Actor.Get();
+						}
 					}
 				}
 			}
