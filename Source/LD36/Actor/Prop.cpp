@@ -8,7 +8,7 @@
 
 AProp::AProp()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void AProp::BeginPlay()
@@ -23,6 +23,8 @@ void AProp::BeginPlay()
 			c2->SetVisibility(false);
 		}
 	}
+
+	SetActorTickEnabled(false);
 }
 
 float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
@@ -43,7 +45,7 @@ float AProp::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 
 	if (Health / MaxHealth <= OnFirePct)
 	{
-		PrimaryActorTick.bCanEverTick = true;
+		SetActorTickEnabled(true);
 	}
 
 	if (Health / MaxHealth <= DetachPct)
