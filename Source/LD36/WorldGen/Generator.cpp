@@ -372,7 +372,7 @@ void AGenerator::BeginPlay()
 		a->SetRelativeScale3D(FVector(1,1,1));
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGenerator::CheckForPlayer, 0.5f, true, 0.5f);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGenerator::CheckForPlayer, 0.5f, true, FMath::FRandRange(0,1));
 
 	GetWorld()->GetNavigationSystem()->ReleaseInitialBuildingLock();
 	

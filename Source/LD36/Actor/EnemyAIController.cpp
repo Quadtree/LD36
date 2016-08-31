@@ -7,6 +7,8 @@
 AEnemyAIController::AEnemyAIController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	NextScanCharge = FMath::FRandRange(0, 1);
 }
 
 void AEnemyAIController::Tick(float DeltaSeconds)
@@ -26,6 +28,8 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 		{
 			Aggroed = true;
 		}
+
+		pwn2->GetMesh()->SetComponentTickEnabled(Aggroed);
 	}
 
 	if (NextScanCharge >= (Aggroed ? 0.33f : 1.0f))

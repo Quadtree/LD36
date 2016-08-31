@@ -15,7 +15,7 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void AGenerator::EndPlay(const EEndPlayReason::Type reason) override;
+	virtual void EndPlay(const EEndPlayReason::Type reason) override;
 
 	UPROPERTY(EditAnywhere, Category = WorldGen)
 	float TileSize;

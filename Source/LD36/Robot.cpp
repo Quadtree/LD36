@@ -29,7 +29,7 @@ void ARobot::BeginPlay()
 	FallBlend = 0;
 	Intact = true;
 
-	GetWorld()->GetTimerManager().SetTimer(HalfSecondUpdateTimerHandle, this, &ARobot::HalfSecondUpdate, 0.5f, true, 0.5f);
+	GetWorld()->GetTimerManager().SetTimer(HalfSecondUpdateTimerHandle, this, &ARobot::HalfSecondUpdate, 0.5f, true, FMath::FRandRange(0,1));
 	HalfSecondUpdate();
 }
 
