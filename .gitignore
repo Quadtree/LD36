@@ -12,3 +12,4 @@ Saved/*
 *.VC.opendb
 *.VC.db
 .~*
+.vs
